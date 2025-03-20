@@ -28,7 +28,7 @@ const Index = () => {
     setProcessingError(null);
     toast({
       title: "File uploaded successfully",
-      description: `${name} has been processed`,
+      description: `${name} has been processed with ${data.totalSheets} sheets`,
     });
   };
 
@@ -68,11 +68,11 @@ const Index = () => {
 
   return (
     <div className="container mx-auto py-10 px-4 min-h-screen flex flex-col items-center justify-center">
-      <Card className="w-full max-w-3xl shadow-lg">
+      <Card className="w-full max-w-4xl shadow-lg">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Excel File Uploader</CardTitle>
           <CardDescription>
-            Upload your Excel file (.xlsx, .xls) to view and analyze the data
+            Upload your Excel file (.xlsx, .xls) to view and analyze data from multiple sheets
           </CardDescription>
         </CardHeader>
         <CardContent>

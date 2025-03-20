@@ -57,21 +57,30 @@ export const useFileUpload = (onFileUploaded) => {
           try {
             const data = new Uint8Array(event.target.result);
             const workbook = XLSX.read(data, { type: 'array' });
-            const sheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[sheetName];
-            const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
             
-            // Process headers and rows
-            const headers = jsonData[0];
-            const rows = jsonData.slice(1);
+            // Process all sheets
+            const sheets = workbook.SheetNames.map(sheetName => {
+              const worksheet = workbook.Sheets[sheetName];
+              const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+              
+              // Process headers and rows for this sheet
+              const headers = jsonData[0] || [];
+              const rows = jsonData.slice(1);
+              
+              return {
+                sheetName,
+                headers,
+                rows,
+                totalRows: rows.length,
+                totalColumns: headers.length
+              };
+            });
             
-            // Create structured data
+            // Create structured data with all sheets
             const processedData = {
-              headers,
-              rows,
-              sheetName,
-              totalRows: rows.length,
-              totalColumns: headers.length
+              sheets,
+              fileName: file.name,
+              totalSheets: sheets.length
             };
             
             // Complete progress and finish loading
