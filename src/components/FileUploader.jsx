@@ -5,12 +5,14 @@ import { Progress } from "@/components/ui/progress";
 import { FileSpreadsheet, Upload, AlertCircle } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import * as XLSX from 'xlsx';
+import { uploadExcelFile } from '@/services/api';
 
 export const FileUploader = ({ onFileUploaded }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
+  const [isUsingAPI, setIsUsingAPI] = useState(false);
   const fileInputRef = useRef(null);
 
   const handleDragOver = (e) => {
@@ -23,7 +25,7 @@ export const FileUploader = ({ onFileUploaded }) => {
     setIsDragging(false);
   };
 
-  const processFile = (file) => {
+  const processFile = async (file) => {
     setIsLoading(true);
     setError(null);
     setProgress(0);
@@ -39,61 +41,75 @@ export const FileUploader = ({ onFileUploaded }) => {
       });
     }, 100);
 
-    const reader = new FileReader();
-    
-    reader.onload = (event) => {
-      try {
-        const data = new Uint8Array(event.target.result);
-        const workbook = XLSX.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-        
-        // Process headers and rows
-        const headers = jsonData[0];
-        const rows = jsonData.slice(1);
-        
-        // Create structured data
-        const processedData = {
-          headers,
-          rows,
-          sheetName,
-          totalRows: rows.length,
-          totalColumns: headers.length
-        };
-        
-        // Complete progress and finish loading
+    try {
+      if (isUsingAPI) {
+        // Process via API
+        const apiResponse = await uploadExcelFile(file);
         clearInterval(progressInterval);
         setProgress(100);
         
         setTimeout(() => {
           setIsLoading(false);
-          onFileUploaded(processedData, file.name);
+          onFileUploaded(apiResponse, file.name);
         }, 500);
-      } catch (err) {
-        clearInterval(progressInterval);
-        setError("Failed to process Excel file. Please make sure it's a valid Excel file.");
-        setIsLoading(false);
-        toast({
-          variant: "destructive",
-          title: "Error processing file",
-          description: err.message,
-        });
+      } else {
+        // Process locally with XLSX
+        const reader = new FileReader();
+        
+        reader.onload = (event) => {
+          try {
+            const data = new Uint8Array(event.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+            
+            // Process headers and rows
+            const headers = jsonData[0];
+            const rows = jsonData.slice(1);
+            
+            // Create structured data
+            const processedData = {
+              headers,
+              rows,
+              sheetName,
+              totalRows: rows.length,
+              totalColumns: headers.length
+            };
+            
+            // Complete progress and finish loading
+            clearInterval(progressInterval);
+            setProgress(100);
+            
+            setTimeout(() => {
+              setIsLoading(false);
+              onFileUploaded(processedData, file.name);
+            }, 500);
+          } catch (err) {
+            handleError(err, progressInterval);
+          }
+        };
+        
+        reader.onerror = () => {
+          handleError(new Error("Failed to read file"), progressInterval);
+        };
+        
+        reader.readAsArrayBuffer(file);
       }
-    };
-    
-    reader.onerror = () => {
-      clearInterval(progressInterval);
-      setError("Failed to read file");
-      setIsLoading(false);
-      toast({
-        variant: "destructive",
-        title: "Error reading file",
-        description: "Failed to read the uploaded file",
-      });
-    };
-    
-    reader.readAsArrayBuffer(file);
+    } catch (err) {
+      handleError(err, progressInterval);
+    }
+  };
+
+  const handleError = (err, progressInterval) => {
+    clearInterval(progressInterval);
+    setError("Failed to process Excel file. Please make sure it's a valid Excel file.");
+    setIsLoading(false);
+    toast({
+      variant: "destructive",
+      title: "Error processing file",
+      description: err.message,
+    });
   };
 
   const handleDrop = (e) => {
@@ -145,6 +161,14 @@ export const FileUploader = ({ onFileUploaded }) => {
     fileInputRef.current.click();
   };
 
+  const toggleProcessingMode = () => {
+    setIsUsingAPI(!isUsingAPI);
+    toast({
+      title: `Processing mode changed`,
+      description: `Now using ${!isUsingAPI ? 'API' : 'local'} processing`,
+    });
+  };
+
   return (
     <div 
       className={`border-2 border-dashed rounded-lg p-10 text-center transition-all duration-200 ${
@@ -175,6 +199,16 @@ export const FileUploader = ({ onFileUploaded }) => {
             <p className="text-sm text-muted-foreground">
               or click the button below to browse files
             </p>
+            <div className="flex items-center justify-center">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={toggleProcessingMode}
+                className="text-xs mx-auto mt-2"
+              >
+                Using {isUsingAPI ? 'API' : 'Local'} Processing
+              </Button>
+            </div>
           </div>
           
           {error && (
