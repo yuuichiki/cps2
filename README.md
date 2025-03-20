@@ -1,4 +1,5 @@
-# Welcome to your Lovable project
+
+# Excel File Magic
 
 ## Project info
 
@@ -27,7 +28,7 @@ Follow these steps:
 git clone <YOUR_GIT_URL>
 
 # Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+cd excel-file-magic
 
 # Step 3: Install the necessary dependencies.
 npm i
@@ -52,13 +53,14 @@ npm run dev
 
 ## What technologies are used for this project?
 
-This project is built with .
+This project is built with:
 
 - Vite
 - TypeScript
 - React
 - shadcn-ui
 - Tailwind CSS
+- xlsx for Excel file processing
 
 ## How can I deploy this project?
 
