@@ -6,7 +6,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import Navbar from "@/components/Navbar";
 
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -14,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import Index from "./pages/Index";
 import Error404 from "./pages/Error404";
 import Error500 from "./pages/Error500";
+import Navbar from "./components/Navbar";
 
 const queryClient = new QueryClient();
 

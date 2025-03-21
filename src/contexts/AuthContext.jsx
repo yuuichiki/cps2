@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "@/components/ui/use-toast";
+import { loginUser, validateToken, devAuthenticate } from '@/services/authService';
 
 const AuthContext = createContext();
 
@@ -16,15 +17,14 @@ export const AuthProvider = ({ children }) => {
     const checkAuth = async () => {
       if (token) {
         try {
-          // Validate token with API
-          const response = await fetch('https://api.example.com/validate-token', {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
+          // Validate token with API - in production, this would call your actual API
+          const userData = await validateToken(token).catch(() => {
+            // If API call fails, still allow the app to function in dev mode
+            console.warn("Token validation failed, but continuing in dev mode");
+            return null;
           });
           
-          if (response.ok) {
-            const userData = await response.json();
+          if (userData) {
             setUser(userData);
           } else {
             // If token is invalid, clear everything
@@ -32,6 +32,7 @@ export const AuthProvider = ({ children }) => {
           }
         } catch (error) {
           console.error("Error validating token:", error);
+          logout();
         }
       }
       setLoading(false);
@@ -44,21 +45,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       
-      // In production, replace with your actual API endpoint
-      const response = await fetch('https://api.example.com/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Login failed');
-      }
-
-      const data = await response.json();
+      const data = await loginUser(email, password);
       
       // Save token to localStorage and state
       localStorage.setItem('token', data.token);
@@ -98,12 +85,11 @@ export const AuthProvider = ({ children }) => {
 
   // For development/testing - simulates a successful login
   const devLogin = () => {
-    const mockUser = { id: 1, name: 'Demo User', email: 'user@example.com' };
-    const mockToken = 'mock-jwt-token-for-development';
+    const mockData = devAuthenticate();
     
-    localStorage.setItem('token', mockToken);
-    setToken(mockToken);
-    setUser(mockUser);
+    localStorage.setItem('token', mockData.token);
+    setToken(mockData.token);
+    setUser(mockData.user);
     
     toast({
       title: "Dev login successful",
