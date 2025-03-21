@@ -9,15 +9,19 @@ const API_BASE_URL = "https://api.example.com";
 /**
  * Upload an Excel file to the server
  * @param {File} file - The Excel file to upload
+ * @param {string} token - Authentication token
  * @returns {Promise} - Promise containing the processed data
  */
-export const uploadExcelFile = async (file) => {
+export const uploadExcelFile = async (file, token) => {
   try {
     const formData = new FormData();
     formData.append("file", file);
     
     const response = await fetch(`${API_BASE_URL}/upload-excel`, {
       method: "POST",
+      headers: {
+        "Authorization": `Bearer ${token}`
+      },
       body: formData,
     });
     
@@ -67,11 +71,16 @@ export const uploadExcelFile = async (file) => {
 /**
  * Fetch processed Excel data from the server
  * @param {string} fileId - ID of the processed file
+ * @param {string} token - Authentication token
  * @returns {Promise} - Promise containing the processed data
  */
-export const getProcessedExcelData = async (fileId) => {
+export const getProcessedExcelData = async (fileId, token) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/excel-data/${fileId}`);
+    const response = await fetch(`${API_BASE_URL}/excel-data/${fileId}`, {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
     
     if (!response.ok) {
       throw new Error(`Failed to fetch data with status: ${response.status}`);
@@ -87,14 +96,16 @@ export const getProcessedExcelData = async (fileId) => {
 /**
  * Process Excel data on the server
  * @param {Object} data - The Excel data to process
+ * @param {string} token - Authentication token
  * @returns {Promise} - Promise containing the processed result
  */
-export const processExcelData = async (data) => {
+export const processExcelData = async (data, token) => {
   try {
     const response = await fetch(`${API_BASE_URL}/process-excel`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
       },
       body: JSON.stringify(data),
     });

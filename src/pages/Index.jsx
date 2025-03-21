@@ -15,12 +15,14 @@ import { ExcelViewer } from '@/components/ExcelViewer';
 import { toast } from "@/components/ui/use-toast";
 import { processExcelData } from '@/services/api';
 import { RefreshCw } from "lucide-react";
+import { useAuth } from '@/contexts/AuthContext';
 
 const Index = () => {
   const [excelData, setExcelData] = useState(null);
   const [fileName, setFileName] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingError, setProcessingError] = useState(null);
+  const { token } = useAuth();
 
   const handleFileUploaded = (data, name) => {
     setExcelData(data);
@@ -45,7 +47,7 @@ const Index = () => {
     setProcessingError(null);
     
     try {
-      const result = await processExcelData(excelData);
+      const result = await processExcelData(excelData, token);
       
       // Update the data with processed results
       setExcelData(result);
@@ -70,7 +72,7 @@ const Index = () => {
     <div className="container mx-auto py-10 px-4 min-h-screen flex flex-col items-center justify-center">
       <Card className="w-full max-w-4xl shadow-lg">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Excel File Uploader</CardTitle>
+          <CardTitle className="text-2xl font-bold">Excel File Viewer</CardTitle>
           <CardDescription>
             Upload your Excel file (.xlsx, .xls) to view and analyze data from multiple sheets
           </CardDescription>
