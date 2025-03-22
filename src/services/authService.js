@@ -4,35 +4,45 @@
  */
 
 // Base URL for Auth API - replace with your actual API endpoint
-const AUTH_API_URL = "https://api.example.com/auth";
+const AUTH_API_URL =  'http://localhost:7142';
+
 
 /**
- * Login user with email and password
- * @param {string} email - User email
+ * Login user with username and password
+ * @param {string} username - User name
  * @param {string} password - User password
  * @returns {Promise} - Promise containing user data and token
  */
-export const loginUser = async (email, password) => {
+export const loginUser = async (username, password) => {
   try {
-    const response = await fetch(`${AUTH_API_URL}/login`, {
+    const response = await fetch(`${AUTH_API_URL}/Account/Login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ username, password }),
     });
     
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.message || `Login failed with status: ${response.status}`);
     }
+
+    const responseData = await response.json();
+    console.log("responseData", responseData);
+
+    // Lưu token vào localStorage để sử dụng sau
+    localStorage.setItem("token", responseData.token);
+    localStorage.setItem("currentUser", JSON.stringify(responseData));
     
-    return await response.json();
+    return responseData;
   } catch (error) {
     console.error("Login error:", error);
     throw error;
   }
 };
+
+
 
 /**
  * Validate authentication token
@@ -41,7 +51,7 @@ export const loginUser = async (email, password) => {
  */
 export const validateToken = async (token) => {
   try {
-    const response = await fetch(`${AUTH_API_URL}/validate-token`, {
+    const response = await fetch(`${AUTH_API_URL}/Account/validate-token`, {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${token}`,
@@ -95,7 +105,7 @@ export const devAuthenticate = () => {
     user: {
       id: 1,
       name: "Demo User",
-      email: "user@example.com",
+      username: "testuser",
       role: "user"
     },
     token: "mock-jwt-token-for-development-testing-only",

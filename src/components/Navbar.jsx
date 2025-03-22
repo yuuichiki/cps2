@@ -56,7 +56,7 @@ const Navbar = () => {
                   <NavigationMenuContent>
                     <div className="w-[220px] p-2">
                       <div className="border-b pb-2 mb-2">
-                        <p className="text-sm font-medium">{user?.email || 'user@example.com'}</p>
+                        <p className="text-sm font-medium">{user?.username }</p>
                       </div>
                       <Button 
                         variant="ghost" 

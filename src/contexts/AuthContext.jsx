@@ -41,11 +41,11 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, [token]);
 
-  const login = async (email, password) => {
+  const login = async (username, password) => {
     try {
       setLoading(true);
       
-      const data = await loginUser(email, password);
+      const data = await loginUser(username, password);
       
       // Save token to localStorage and state
       localStorage.setItem('token', data.token);

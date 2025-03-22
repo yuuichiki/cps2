@@ -9,7 +9,7 @@ import { Navigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const [username, setUserName] = useState('');
   const [password, setPassword] = useState('');
   const { login, devLogin, loading, isAuthenticated } = useAuth();
 
@@ -20,7 +20,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await login(email, password);
+    await login(username, password);
   };
 
   return (
@@ -36,13 +36,13 @@ const Login = () => {
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="username">Userame</Label>
                 <Input 
-                  id="email" 
-                  type="email" 
-                  placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="username" 
+                  type="username" 
+                  placeholder="username"
+                  value={username}
+                  onChange={(e) => setUserName(e.target.value)}
                   required
                 />
               </div>
@@ -78,7 +78,6 @@ const Login = () => {
                   "Sign in"
                 )}
               </Button>
-              
               {/* Development login button */}
               <div className="w-full text-center mt-4">
                 <p className="text-sm text-muted-foreground mb-2">For development purposes:</p>
