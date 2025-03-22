@@ -32,10 +32,21 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/500" element={<Error500 />} />
 
-              {/* Protected routes */}
-              <Route element={<ProtectedRoute />}>
+              {/* Protected routes with permission checks */}
+              <Route element={<ProtectedRoute requiredPermission="view:dashboard" />}>
                 <Route path="/dashboard" element={<Dashboard />} />
+              </Route>
+              
+              <Route element={<ProtectedRoute requiredPermission="view:reports" />}>
                 <Route path="/excel-viewer" element={<Index />} />
+              </Route>
+
+              <Route element={<ProtectedRoute requiredPermission="manage:users" />}>
+                <Route path="/users" element={<div className="container py-10">User Management (Coming Soon)</div>} />
+              </Route>
+              
+              <Route element={<ProtectedRoute requiredPermission="view:settings" />}>
+                <Route path="/settings" element={<div className="container py-10">Settings (Coming Soon)</div>} />
               </Route>
               
               {/* Error/fallback routes */}

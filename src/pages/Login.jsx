@@ -1,99 +1,150 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import { ROLES } from '@/utils/permissions';
+import { FileSpreadsheet, Loader2 } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Login = () => {
-  const [username, setUserName] = useState('');
-  const [password, setPassword] = useState('');
-  const { login, devLogin, loading, isAuthenticated } = useAuth();
+  const { login, devLogin, loading } = useAuth();
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    username: '',
+    password: '',
+  });
+  const [devRole, setDevRole] = useState(ROLES.USER);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // If user is already authenticated, redirect to dashboard
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
-  }
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await login(username, password);
+    setIsSubmitting(true);
+    try {
+      const { username, password } = formData;
+      await login(username, password);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  return (
-    <div className="min-h-screen flex flex-col justify-center items-center p-4 bg-background">
-      <div className="w-full max-w-md">
-        <Card className="shadow-lg">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Sign In</CardTitle>
-            <CardDescription className="text-center">
-              Enter your credentials to access your account
-            </CardDescription>
-          </CardHeader>
-          <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="username">Userame</Label>
-                <Input 
-                  id="username" 
-                  type="username" 
-                  placeholder="username"
-                  value={username}
-                  onChange={(e) => setUserName(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
-                  <a href="#" className="text-sm text-primary hover:underline">
-                    Forgot password?
-                  </a>
-                </div>
-                <Input 
-                  id="password" 
-                  type="password" 
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-            </CardContent>
-            <CardFooter className="flex flex-col space-y-2">
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Logging in...
-                  </>
-                ) : (
-                  "Sign in"
-                )}
-              </Button>
-              {/* Development login button */}
-              <div className="w-full text-center mt-4">
-                <p className="text-sm text-muted-foreground mb-2">For development purposes:</p>
-                <Button 
-                  type="button" 
-                  variant="outline"
-                  className="w-full" 
-                  onClick={devLogin}
-                >
-                  Dev Login (No API)
-                </Button>
-              </div>
-            </CardFooter>
-          </form>
-        </Card>
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2">Loading...</span>
       </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto flex items-center justify-center min-h-[calc(100vh-80px)] px-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <div className="flex justify-center mb-4">
+            <div className="bg-primary/10 p-3 rounded-full">
+              <FileSpreadsheet className="h-8 w-8 text-primary" />
+            </div>
+          </div>
+          <CardTitle className="text-2xl text-center">Welcome back</CardTitle>
+          <CardDescription className="text-center">
+            Enter your credentials to login to your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                name="username"
+                placeholder="username"
+                required
+                value={formData.username}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="••••••••"
+                required
+                value={formData.password}
+                onChange={handleChange}
+              />
+            </div>
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Logging in...
+                </>
+              ) : 'Login'}
+            </Button>
+          </form>
+        </CardContent>
+        <CardFooter className="flex flex-col space-y-4">
+          <div className="relative w-full">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">
+                Development Options
+              </span>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-4 gap-4 w-full">
+            <div className="col-span-1">
+              <Select 
+                value={devRole} 
+                onValueChange={setDevRole}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ROLES.ADMIN}>Admin</SelectItem>
+                  <SelectItem value={ROLES.USER}>User</SelectItem>
+                  <SelectItem value={ROLES.VIEWER}>Viewer</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="col-span-3">
+              <Button 
+                variant="outline" 
+                className="w-full" 
+                type="button"
+                onClick={() => devLogin(devRole)}
+              >
+                Dev Login ({devRole})
+              </Button>
+            </div>
+          </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 };

@@ -1,10 +1,11 @@
 
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 
-const ProtectedRoute = () => {
-  const { isAuthenticated, loading } = useAuth();
+const ProtectedRoute = ({ requiredPermission }) => {
+  const { isAuthenticated, loading, checkPermission } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -15,7 +16,19 @@ const ProtectedRoute = () => {
     );
   }
 
-  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+  // Check if user is authenticated
+  if (!isAuthenticated) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // If permission is required, check if user has it
+  if (requiredPermission && !checkPermission(requiredPermission)) {
+    return <Navigate to="/500" state={{ 
+      errorMessage: "You don't have permission to access this page" 
+    }} replace />;
+  }
+
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

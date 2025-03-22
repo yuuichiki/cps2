@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "@/components/ui/use-toast";
 import { loginUser, validateToken, devAuthenticate } from '@/services/authService';
+import { hasPermission } from '@/utils/permissions';
 
 const AuthContext = createContext();
 
@@ -17,9 +18,8 @@ export const AuthProvider = ({ children }) => {
     const checkAuth = async () => {
       if (token) {
         try {
-          // Validate token with API - in production, this would call your actual API
+          // Validate token with API
           const userData = await validateToken(token).catch(() => {
-            // If API call fails, still allow the app to function in dev mode
             console.warn("Token validation failed, but continuing in dev mode");
             return null;
           });
@@ -83,9 +83,9 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  // For development/testing - simulates a successful login
-  const devLogin = () => {
-    const mockData = devAuthenticate();
+  // For development/testing - simulates a successful login with role
+  const devLogin = (role = 'user') => {
+    const mockData = devAuthenticate(role);
     
     localStorage.setItem('token', mockData.token);
     setToken(mockData.token);
@@ -93,20 +93,26 @@ export const AuthProvider = ({ children }) => {
     
     toast({
       title: "Dev login successful",
-      description: "Logged in with demo account",
+      description: `Logged in with ${role} role`,
     });
     
     navigate('/dashboard');
+  };
+
+  // Check if user has specific permission
+  const checkPermission = (permission) => {
+    return hasPermission(user, permission);
   };
 
   return (
     <AuthContext.Provider value={{ 
       user, 
       token, 
-      loading, 
+      loading,
       login, 
       logout,
       devLogin,
+      checkPermission,
       isAuthenticated: !!token 
     }}>
       {children}

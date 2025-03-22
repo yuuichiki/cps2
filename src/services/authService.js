@@ -4,8 +4,7 @@
  */
 
 // Base URL for Auth API - replace with your actual API endpoint
-const AUTH_API_URL =  'http://localhost:7142';
-
+const AUTH_API_URL = 'http://localhost:7142';
 
 /**
  * Login user with username and password
@@ -31,7 +30,7 @@ export const loginUser = async (username, password) => {
     const responseData = await response.json();
     console.log("responseData", responseData);
 
-    // Lưu token vào localStorage để sử dụng sau
+    // Store token in localStorage for future use
     localStorage.setItem("token", responseData.token);
     localStorage.setItem("currentUser", JSON.stringify(responseData));
     
@@ -41,8 +40,6 @@ export const loginUser = async (username, password) => {
     throw error;
   }
 };
-
-
 
 /**
  * Validate authentication token
@@ -96,19 +93,20 @@ export const logoutUser = async (token) => {
 };
 
 /**
- * For development - Simulated authentication
+ * For development - Simulated authentication with role
+ * @param {string} role - User role (admin, user, viewer)
  * @returns {Object} - Mock user data and token
  */
-export const devAuthenticate = () => {
+export const devAuthenticate = (role = 'user') => {
   // This is just for development/testing
   return {
     user: {
       id: 1,
       name: "Demo User",
       username: "testuser",
-      role: "user"
+      role: role
     },
-    token: "mock-jwt-token-for-development-testing-only",
+    token: `mock-jwt-token-${role}-for-development-testing-only`,
     expiresIn: 3600
   };
 };
