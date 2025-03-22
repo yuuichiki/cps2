@@ -14,6 +14,8 @@ import Index from "./pages/Index";
 import Error404 from "./pages/Error404";
 import Error500 from "./pages/Error500";
 import Navbar from "./components/Navbar";
+import RoleManagement from "./pages/RoleManagement";
+import UserManagement from "./pages/UserManagement";
 
 const queryClient = new QueryClient();
 
@@ -41,8 +43,14 @@ const App = () => (
                 <Route path="/excel-viewer" element={<Index />} />
               </Route>
 
-              <Route element={<ProtectedRoute requiredPermission="manage:users" />}>
-                <Route path="/users" element={<div className="container py-10">User Management (Coming Soon)</div>} />
+              {/* User Management CRUD routes */}
+              <Route element={<ProtectedRoute requiredPermission="view:users" />}>
+                <Route path="/users" element={<UserManagement />} />
+              </Route>
+              
+              {/* Role Management CRUD routes */}
+              <Route element={<ProtectedRoute requiredPermission="view:roles" />}>
+                <Route path="/roles" element={<RoleManagement />} />
               </Route>
               
               <Route element={<ProtectedRoute requiredPermission="view:settings" />}>

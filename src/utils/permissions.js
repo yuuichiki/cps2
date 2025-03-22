@@ -21,6 +21,16 @@ export const ROLE_PERMISSIONS = {
     'export:excel',
     'manage:users',
     'view:reports',
+    // Role CRUD permissions
+    'view:roles',
+    'create:roles',
+    'edit:roles',
+    'delete:roles',
+    // User CRUD permissions
+    'view:users',
+    'create:users',
+    'edit:users',
+    'delete:users',
   ],
   [ROLES.USER]: [
     'view:dashboard',
@@ -28,6 +38,8 @@ export const ROLE_PERMISSIONS = {
     'edit:excel',
     'export:excel',
     'view:reports',
+    // Limited user permissions
+    'view:users',
   ],
   [ROLES.VIEWER]: [
     'view:dashboard',
@@ -60,7 +72,13 @@ export const MENU_ITEMS = [
     title: 'User Management',
     path: '/users',
     icon: 'Users',
-    permission: 'manage:users',
+    permission: 'view:users',
+  },
+  {
+    title: 'Role Management',
+    path: '/roles',
+    icon: 'Shield',
+    permission: 'view:roles',
   },
   {
     title: 'Settings',
@@ -110,4 +128,37 @@ export const withPermission = (Component, permission) => {
     
     return Component(props);
   };
+};
+
+/**
+ * Check if user has any of the CRUD permissions for a resource
+ * @param {Object} user - Current user object with role property
+ * @param {String} resource - Resource name (e.g., 'users', 'roles')
+ * @returns {Object} - Object with boolean flags for each CRUD operation
+ */
+export const getCrudPermissions = (user, resource) => {
+  return {
+    canView: hasPermission(user, `view:${resource}`),
+    canCreate: hasPermission(user, `create:${resource}`),
+    canEdit: hasPermission(user, `edit:${resource}`),
+    canDelete: hasPermission(user, `delete:${resource}`)
+  };
+};
+
+/**
+ * Generate a list of available actions based on user permissions
+ * @param {Object} user - Current user object with role property
+ * @param {String} resource - Resource name (e.g., 'users', 'roles')
+ * @returns {Array} - Array of available actions
+ */
+export const getAvailableActions = (user, resource) => {
+  const permissions = getCrudPermissions(user, resource);
+  const actions = [];
+  
+  if (permissions.canView) actions.push('view');
+  if (permissions.canCreate) actions.push('create');
+  if (permissions.canEdit) actions.push('edit');
+  if (permissions.canDelete) actions.push('delete');
+  
+  return actions;
 };
