@@ -108,6 +108,6 @@ export const withPermission = (Component, permission) => {
       return null;
     }
     
-    return <Component {...props} />;
+    return Component(props);
   };
 };
