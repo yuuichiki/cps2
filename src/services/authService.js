@@ -92,6 +92,34 @@ export const logoutUser = async (token) => {
   }
 };
 
+
+
+export const getRolesMenu = async (token,permission) => {
+  try {
+    const response = await fetch(`${AUTH_API_URL}/Admin/getMenuAuth`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Permission":permission
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Logout failed with status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Logout error:", error);
+    // Even if API logout fails, we still want to clear local storage
+    return { success: true };
+  }
+};
+
+
+
+
+
 /**
  * For development - Simulated authentication with role
  * @param {string} role - User role (admin, user, viewer)

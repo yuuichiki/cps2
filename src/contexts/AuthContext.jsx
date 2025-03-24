@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "@/components/ui/use-toast";
-import { loginUser, validateToken, devAuthenticate } from '@/services/authService';
+import { loginUser, validateToken, devAuthenticate ,getRolesMenu} from '@/services/authService';
 import { hasPermission } from '@/utils/permissions';
 
 const AuthContext = createContext();
@@ -101,7 +101,13 @@ export const AuthProvider = ({ children }) => {
 
   // Check if user has specific permission
   const checkPermission = (permission) => {
-    return hasPermission(user, permission);
+    console.log("permission",permission);
+    console.log("hasPermission",hasPermission(user, permission));
+    console.log("user",user);
+    
+    return getRolesMenu(token,permission)
+    // return hasPermission(user, permission);
+
   };
 
   return (
