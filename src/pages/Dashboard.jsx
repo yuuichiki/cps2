@@ -1,16 +1,25 @@
 
-import React from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileUploader } from '@/components/FileUploader';
 import { useAuth } from '@/contexts/AuthContext';
 import { ArrowRight, FileUp, PanelLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+
+
 
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+
+  // useEffect(() => {
+  //   if (location.pathname !== '/login' && location.pathname !== '/500' && location.pathname !== '/404') {
+  //     localStorage.setItem('lastVisitedPage', location.pathname);
+  //   }
+  // }, [location.pathname]);
+  
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="mb-10">
@@ -25,12 +34,12 @@ const Dashboard = () => {
           <CardHeader>
             <CardTitle>Upload New Excel File</CardTitle>
             <CardDescription>
-              Upload an Excel file to view and analyze data from multiple sheets
+             Dashboard -Upload an Excel file to view and analyze data from multiple sheets
             </CardDescription>
           </CardHeader>
           <CardContent>
             <FileUploader onFileUploaded={(data, name) => {
-              navigate('/');
+             // navigate('/');
             }} />
           </CardContent>
         </Card>
