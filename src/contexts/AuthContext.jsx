@@ -1,7 +1,8 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from "@/components/ui/use-toast";
-import { loginUser, validateToken, devAuthenticate ,getRolesMenu} from '@/services/authService';
+import { loginUser, validateToken, devAuthenticate, getRolesMenu } from '@/services/authService';
 import { hasPermission } from '@/utils/permissions';
 
 const AuthContext = createContext();
@@ -11,6 +12,14 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Store the current path when it changes (except for login page)
+  useEffect(() => {
+    if (location.pathname !== '/login' && location.pathname !== '/500' && location.pathname !== '/404') {
+      localStorage.setItem('lastVisitedPage', location.pathname);
+    }
+  }, [location.pathname]);
 
   // Check if user is authenticated on initial load
   useEffect(() => {
@@ -56,7 +65,9 @@ export const AuthProvider = ({ children }) => {
         description: "Welcome back!",
       });
       
-      navigate('/dashboard');
+      // Navigate to last visited page or dashboard as default
+      const lastPage = localStorage.getItem('lastVisitedPage');
+      navigate(lastPage || '/dashboard');
       return true;
     } catch (error) {
       toast({
@@ -95,7 +106,9 @@ export const AuthProvider = ({ children }) => {
       description: `Logged in with ${role} role`,
     });
     
-    navigate('/dashboard');
+    // Navigate to last visited page or dashboard as default
+    const lastPage = localStorage.getItem('lastVisitedPage');
+    navigate(lastPage || '/dashboard');
   };
 
   // Check if user has specific permission
