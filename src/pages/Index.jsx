@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   Card, 
@@ -32,6 +31,7 @@ const Index = () => {
       title: "File uploaded successfully",
       description: `${name} has been processed with ${data.totalSheets} sheets`,
     });
+    // No navigation happens here, keeping the user on the current page
   };
 
   const handleReset = () => {

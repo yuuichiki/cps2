@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "@/components/ui/use-toast";
@@ -101,13 +100,7 @@ export const AuthProvider = ({ children }) => {
 
   // Check if user has specific permission
   const checkPermission = (permission) => {
-    console.log("permission",permission);
-    console.log("hasPermission",hasPermission(user, permission));
-    console.log("user",user);
-    
     return getRolesMenu(token,permission)
-    // return hasPermission(user, permission);
-
   };
 
   return (
