@@ -94,7 +94,35 @@ export const logoutUser = async (token) => {
 
 
 
-export const getRolesMenu = async (token,permission) => {
+
+export const getMenuItems = async (token) => {
+  try {
+
+    const response = await fetch(`${AUTH_API_URL}/Admin/getSysMenu`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+      },
+    });
+
+    
+    if (!response.ok) {
+      throw new Error(`Logout failed with status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error("Logout error:", error);
+    // Even if API logout fails, we still want to clear local storage
+    return { success: true };
+  }
+};
+
+
+
+
+
+export const checkPermission = async (token,permission) => {
   try {
     const response = await fetch(`${AUTH_API_URL}/Admin/getMenuAuth`, {
       method: "GET",
@@ -134,7 +162,7 @@ export const devAuthenticate = (role = 'user') => {
       username: "testuser",
       role: role
     },
-    token: `mock-jwt-token-${role}-for-development-testing-only`,
+    token: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiJQUEMiLCJ1bmlxdWVfbmFtZSI6IlBQQyIsInJvbGUiOiJVc2VyIiwibmJmIjoxNzQyODg2OTM0LCJleHAiOjE3NDI5NzMzMzQsImlhdCI6MTc0Mjg4NjkzNCwiaXNzIjoiTmV0QVBJIiwiYXVkIjoiQ1BTU3lzIn0.oaDhxHAhfUdiEyPtNv5aRRRp57pc2Le4E00CLZ67T48`,
     expiresIn: 3600
   };
 };

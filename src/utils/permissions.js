@@ -4,6 +4,11 @@
  */
 
 // Define application roles
+import { useAuth } from '@/contexts/AuthContext';
+import { array } from 'zod';
+
+
+
 export const ROLES = {
   ADMIN: 'admin',
   USER: 'user',
@@ -49,6 +54,17 @@ export const ROLE_PERMISSIONS = {
 };
 
 // Define menu items with their required permissions
+
+
+
+//  export const MENU_ITEMS = () =>{
+
+//   const { getMenus } = useAuth();
+//   return getMenus();
+//  }
+
+
+
 export const MENU_ITEMS = [
   {
     title: 'Dashboard',
@@ -88,6 +104,11 @@ export const MENU_ITEMS = [
   },
 ];
 
+
+export const MENU_MS = () => {
+  const { getMenus } = useAuth();
+  return getMenus();
+};
 /**
  * Check if user has the specific permission
  * @param {Object} user - Current user object with role property
@@ -96,8 +117,8 @@ export const MENU_ITEMS = [
  */
 export const hasPermission = (user, permission) => {
   if (!user || !user.role) return false;
-  
-  const userPermissions = ROLE_PERMISSIONS[user.role] || [];
+  var role=user.role.toLowerCase()
+  const userPermissions = ROLE_PERMISSIONS[role ] || [];
   return userPermissions.includes(permission);
 };
 
@@ -108,7 +129,6 @@ export const hasPermission = (user, permission) => {
  */
 export const getAuthorizedMenuItems = (user) => {
   if (!user) return [];
-  
   return MENU_ITEMS.filter(item => hasPermission(user, item.permission));
 };
 

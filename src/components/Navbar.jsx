@@ -123,6 +123,33 @@ const Navbar = () => {
                           Home
                         </div>
                       </Link>
+                      {/* <Link to="/excel-viewer">
+                        <div className={navigationMenuTriggerStyle()}>
+                          <Home className="mr-2 h-4 w-4" />
+                          excel-viewer
+                        </div>
+                      </Link>
+                      <Link to="/users">
+                        <div className={navigationMenuTriggerStyle()}>
+                          <Home className="mr-2 h-4 w-4" />
+                          users
+                        </div>
+                      </Link>
+                      <Link to="/roles">
+                        <div className={navigationMenuTriggerStyle()}>
+                          <Home className="mr-2 h-4 w-4" />
+                          roles
+                        </div>
+                      </Link>
+                      <Link to="/settings">
+                        <div className={navigationMenuTriggerStyle()}>
+                          <Home className="mr-2 h-4 w-4" />
+                          settings
+                        </div>
+                      </Link>
+                       */}
+
+
                     </NavigationMenuItem>
                     
                     {renderMenuItems(menuItems)}

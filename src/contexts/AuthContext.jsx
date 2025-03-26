@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from "@/components/ui/use-toast";
-import { loginUser, validateToken, devAuthenticate, getRolesMenu } from '@/services/authService';
+import { loginUser, validateToken, devAuthenticate,getMenuItems } from '@/services/authService';
 import { hasPermission } from '@/utils/permissions';
 
 const AuthContext = createContext();
@@ -112,9 +112,25 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Check if user has specific permission
+  // const checkPermission = (permission) => {
+  //   return checkPermission(token,permission)
+  // };
+
   const checkPermission = (permission) => {
-    return getRolesMenu(token,permission)
+    return hasPermission(user, permission);
   };
+
+
+ 
+  const getMenus = async () => {
+    try {
+      return await getMenuItems(token);
+    } catch (error) {
+      console.error("Error fetching menus:", error);
+      return [];
+    }
+  };
+
 
   return (
     <AuthContext.Provider value={{ 
@@ -125,6 +141,7 @@ export const AuthProvider = ({ children }) => {
       logout,
       devLogin,
       checkPermission,
+      getMenus,
       isAuthenticated: !!token 
     }}>
       {children}
