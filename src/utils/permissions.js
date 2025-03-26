@@ -4,11 +4,6 @@
  */
 
 // Define application roles
-import { useAuth } from '@/contexts/AuthContext';
-import { array } from 'zod';
-
-
-
 export const ROLES = {
   ADMIN: 'admin',
   USER: 'user',
@@ -53,19 +48,8 @@ export const ROLE_PERMISSIONS = {
   ],
 };
 
-// Define menu items with their required permissions
-
-
-
-//  export const MENU_ITEMS = () =>{
-
-//   const { getMenus } = useAuth();
-//   return getMenus();
-//  }
-
-
-
-export const MENU_ITEMS = [
+// The static fallback menu items (will be used if API request fails)
+export const STATIC_MENU_ITEMS = [
   {
     title: 'Dashboard',
     path: '/dashboard',
@@ -104,11 +88,6 @@ export const MENU_ITEMS = [
   },
 ];
 
-
-export const MENU_MS = () => {
-  const { getMenus } = useAuth();
-  return getMenus();
-};
 /**
  * Check if user has the specific permission
  * @param {Object} user - Current user object with role property
@@ -117,19 +96,20 @@ export const MENU_MS = () => {
  */
 export const hasPermission = (user, permission) => {
   if (!user || !user.role) return false;
-  var role=user.role.toLowerCase()
-  const userPermissions = ROLE_PERMISSIONS[role ] || [];
+  var role = user.role.toLowerCase();
+  const userPermissions = ROLE_PERMISSIONS[role] || [];
   return userPermissions.includes(permission);
 };
 
 /**
  * Get menu items user has permission to see
  * @param {Object} user - Current user object with role property
+ * @param {Array} menuItems - Array of menu items to filter
  * @returns {Array} - Filtered menu items based on user permissions
  */
-export const getAuthorizedMenuItems = (user) => {
+export const getAuthorizedMenuItems = (user, menuItems = STATIC_MENU_ITEMS) => {
   if (!user) return [];
-  return MENU_ITEMS.filter(item => hasPermission(user, item.permission));
+  return menuItems.filter(item => hasPermission(user, item.permission));
 };
 
 /**

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { 
@@ -17,7 +17,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useAuth } from '@/contexts/AuthContext';
-import { getAuthorizedMenuItems } from '@/utils/permissions';
+import { getAuthorizedMenuItems, STATIC_MENU_ITEMS } from '@/utils/permissions';
 import useResponsive from '@/hooks/useResponsive';
 import { 
   BarChart, 
@@ -26,7 +26,8 @@ import {
   LayoutDashboard, 
   LogOut, 
   Menu, 
-  Settings, 
+  Settings,
+  Shield,
   User, 
   Users, 
   X
@@ -41,17 +42,56 @@ const iconMap = {
   Users,
   Settings,
   BarChart,
+  Shield,
 };
 
 const Navbar = () => {
-  const { user, logout, isAuthenticated, checkPermission } = useAuth();
+  const { user, logout, isAuthenticated, checkPermission, getMenus } = useAuth();
+  const [menuItems, setMenuItems] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
   const { isMobile } = useResponsive();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Fetch menu items from API on component mount
+  useEffect(() => {
+    const fetchMenuItems = async () => {
+      if (!user) {
+        setMenuItems([]);
+        setLoading(false);
+        return;
+      }
+      
+      try {
+        const apiMenuItems = await getMenus();
+        if (apiMenuItems && Array.isArray(apiMenuItems)) {
+          // Map API response to match our menu item structure
+          const formattedMenuItems = apiMenuItems.map(item => ({
+            title: item.title || item.name || item.menuName,
+            path: item.path || item.url || item.menuUrl,
+            icon: item.icon || 'LayoutDashboard',
+            permission: item.permission || 'view:dashboard',
+          }));
+          setMenuItems(formattedMenuItems);
+        } else {
+          // Fallback to static menu items if API returns invalid data
+          setMenuItems(STATIC_MENU_ITEMS);
+        }
+      } catch (error) {
+        console.error("Error fetching menu items:", error);
+        // Fallback to static menu items on error
+        setMenuItems(STATIC_MENU_ITEMS);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMenuItems();
+  }, [user, getMenus]);
+
   // Get authorized menu items based on user role
-  const menuItems = getAuthorizedMenuItems(user);
+  const authorizedMenuItems = getAuthorizedMenuItems(user, menuItems);
 
   // Handle menu click and close mobile menu if open
   const handleMenuClick = (path) => {
@@ -123,36 +163,17 @@ const Navbar = () => {
                           Home
                         </div>
                       </Link>
-                      {/* <Link to="/excel-viewer">
-                        <div className={navigationMenuTriggerStyle()}>
-                          <Home className="mr-2 h-4 w-4" />
-                          excel-viewer
-                        </div>
-                      </Link>
-                      <Link to="/users">
-                        <div className={navigationMenuTriggerStyle()}>
-                          <Home className="mr-2 h-4 w-4" />
-                          users
-                        </div>
-                      </Link>
-                      <Link to="/roles">
-                        <div className={navigationMenuTriggerStyle()}>
-                          <Home className="mr-2 h-4 w-4" />
-                          roles
-                        </div>
-                      </Link>
-                      <Link to="/settings">
-                        <div className={navigationMenuTriggerStyle()}>
-                          <Home className="mr-2 h-4 w-4" />
-                          settings
-                        </div>
-                      </Link>
-                       */}
-
-
                     </NavigationMenuItem>
                     
-                    {renderMenuItems(menuItems)}
+                    {loading ? (
+                      <NavigationMenuItem>
+                        <div className={navigationMenuTriggerStyle()}>
+                          Loading...
+                        </div>
+                      </NavigationMenuItem>
+                    ) : (
+                      renderMenuItems(authorizedMenuItems)
+                    )}
                     
                     <NavigationMenuItem>
                       <NavigationMenuTrigger className="flex items-center">
@@ -222,7 +243,11 @@ const Navbar = () => {
                         <span>Home</span>
                       </div>
                       
-                      {renderMenuItems(menuItems, true)}
+                      {loading ? (
+                        <div className="flex items-center p-3">Loading...</div>
+                      ) : (
+                        renderMenuItems(authorizedMenuItems, true)
+                      )}
                     </div>
                     
                     <div className="mt-auto pt-4 border-t">

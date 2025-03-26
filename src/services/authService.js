@@ -1,4 +1,3 @@
-
 /**
  * Authentication Service for handling API authentication
  */
@@ -92,37 +91,49 @@ export const logoutUser = async (token) => {
   }
 };
 
-
-
-
+/**
+ * Get menu items from API
+ * @param {string} token - JWT token
+ * @returns {Promise} - Promise containing menu items
+ */
 export const getMenuItems = async (token) => {
   try {
-
     const response = await fetch(`${AUTH_API_URL}/Admin/getSysMenu`, {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
       },
     });
-
     
     if (!response.ok) {
-      throw new Error(`Logout failed with status: ${response.status}`);
+      throw new Error(`Failed to fetch menu items with status: ${response.status}`);
     }
     
-    return await response.json();
+    const menuData = await response.json();
+    console.log("API menu items:", menuData);
+    
+    if (Array.isArray(menuData)) {
+      return menuData;
+    } else if (menuData.data && Array.isArray(menuData.data)) {
+      return menuData.data;
+    } else {
+      console.warn("Invalid menu data format received from API:", menuData);
+      return [];
+    }
   } catch (error) {
-    console.error("Logout error:", error);
-    // Even if API logout fails, we still want to clear local storage
-    return { success: true };
+    console.error("Error fetching menu items:", error);
+    return [];
   }
 };
 
-
-
-
-
-export const checkPermission = async (token,permission) => {
+/**
+ * Check permission against API
+ * @param {string} token - JWT token
+ * @param {string} permission - Permission to check
+ * @returns {Promise} - Promise containing permission check result
+ */
+export const checkPermission = async (token, permission) => {
   try {
     const response = await fetch(`${AUTH_API_URL}/Admin/getMenuAuth`, {
       method: "GET",
@@ -143,10 +154,6 @@ export const checkPermission = async (token,permission) => {
     return { success: true };
   }
 };
-
-
-
-
 
 /**
  * For development - Simulated authentication with role
