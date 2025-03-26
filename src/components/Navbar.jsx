@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -187,16 +186,7 @@ const Navbar = () => {
                           </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onSelect={() => navigate('/profile')} className="cursor-pointer">
-                          <User className="mr-2 h-4 w-4" />
-                          Profile
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={() => navigate('/settings')} className="cursor-pointer">
-                          <Settings className="mr-2 h-4 w-4" />
-                          Settings
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onSelect={logout} className="cursor-pointer text-destructive focus:text-destructive">
+                        <DropdownMenuItem onSelect={logout} className="cursor-pointer">
                           <LogOut className="mr-2 h-4 w-4" />
                           Logout
                         </DropdownMenuItem>
