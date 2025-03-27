@@ -6,14 +6,15 @@ import {
   Users,
   Settings,
   BarChart, 
-  Shield 
+  Shield,
+  LayoutDashboard
 } from 'lucide-react';
 
 // Map string icon names to actual Lucide React components
 export const iconMap = {
   FileSpreadsheet,
   Home,
-  LayoutDashboard: Home, // Fallback to Home if LayoutDashboard is not available
+  LayoutDashboard,
   User,
   Users,
   Settings,
