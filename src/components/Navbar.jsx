@@ -16,6 +16,11 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger
+} from "@/components/ui/sheet";
 import { useAuth } from '@/contexts/AuthContext';
 import { getAuthorizedMenuItems, STATIC_MENU_ITEMS } from '@/utils/permissions';
 import useResponsive from '@/hooks/useResponsive';
