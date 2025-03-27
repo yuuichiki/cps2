@@ -2,6 +2,7 @@
 /**
  * Permission and role management utilities
  */
+import { getRolesAndPermissions } from '@/services/authService';
 
 // Define application roles
 export const ROLES = {
@@ -10,8 +11,11 @@ export const ROLES = {
   VIEWER: 'viewer',
 };
 
-// Define permissions by role
-export const ROLE_PERMISSIONS = {
+// Dynamic role permissions that will be populated from API
+let dynamicRolePermissions = null;
+
+// Default role permissions used as fallback if API fails
+const DEFAULT_ROLE_PERMISSIONS = {
   [ROLES.ADMIN]: [
     'view:dashboard',
     'view:settings',
@@ -21,12 +25,10 @@ export const ROLE_PERMISSIONS = {
     'export:excel',
     'manage:users',
     'view:reports',
-    // Role CRUD permissions
     'view:roles',
     'create:roles',
     'edit:roles',
     'delete:roles',
-    // User CRUD permissions
     'view:users',
     'create:users',
     'edit:users',
@@ -38,7 +40,6 @@ export const ROLE_PERMISSIONS = {
     'edit:excel',
     'export:excel',
     'view:reports',
-    // Limited user permissions
     'view:users',
   ],
   [ROLES.VIEWER]: [
@@ -46,6 +47,48 @@ export const ROLE_PERMISSIONS = {
     'view:reports',
     'export:excel',
   ],
+};
+
+/**
+ * Initialize role permissions from API data
+ * @param {Array} rolesData - Roles and permissions data from API
+ */
+export const initializeRolePermissions = (rolesData) => {
+  if (!rolesData || !Array.isArray(rolesData)) return;
+  
+  const permissions = {};
+  
+  rolesData.forEach(roleData => {
+    if (roleData.role && Array.isArray(roleData.permissions)) {
+      permissions[roleData.role] = roleData.permissions;
+    }
+  });
+  
+  dynamicRolePermissions = permissions;
+  console.log('Role permissions initialized:', dynamicRolePermissions);
+};
+
+/**
+ * Fetch and initialize role permissions from API
+ * @param {string} token - JWT token
+ */
+export const fetchRolePermissions = async (token) => {
+  try {
+    const rolesData = await getRolesAndPermissions(token);
+    initializeRolePermissions(rolesData);
+    return rolesData;
+  } catch (error) {
+    console.error('Failed to fetch role permissions:', error);
+    return null;
+  }
+};
+
+/**
+ * Get current role permissions
+ * @returns {Object} - Role permissions mapping
+ */
+export const getRolePermissions = () => {
+  return dynamicRolePermissions || DEFAULT_ROLE_PERMISSIONS;
 };
 
 // The static fallback menu items (will be used if API request fails)
@@ -97,7 +140,8 @@ export const STATIC_MENU_ITEMS = [
 export const hasPermission = (user, permission) => {
   if (!user || !user.role) return false;
   var role = user.role.toLowerCase();
-  const userPermissions = ROLE_PERMISSIONS[role] || [];
+  const rolePermissions = getRolePermissions();
+  const userPermissions = rolePermissions[role] || [];
   return userPermissions.includes(permission);
 };
 

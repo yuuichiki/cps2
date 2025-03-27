@@ -156,6 +156,79 @@ export const checkPermission = async (token, permission) => {
 };
 
 /**
+ * Get roles and permissions from API
+ * @param {string} token - JWT token
+ * @returns {Promise} - Promise containing roles and permissions data
+ */
+export const getRolesAndPermissions = async (token) => {
+  // For development purposes, return mock data
+  // In production, this would be an API call
+  return [
+    {
+      "role": "admin",
+      "permissions": [
+        "export:excel",
+        "edit:excel",
+        "upload:excel",
+        "view:roles",
+        "edit:roles",
+        "view:users",
+        "delete:excel",
+        "create:roles",
+        "edit:users",
+        "create:users",
+        "delete:roles",
+        "view:dashboard",
+        "manage:users",
+        "view:reports",
+        "view:settings"
+      ]
+    },
+    {
+      "role": "viewer",
+      "permissions": [
+        "view:dashboard",
+        "view:reports",
+        "export:excel"
+      ]
+    },
+    {
+      "role": "user",
+      "permissions": [
+        "view:dashboard",
+        "upload:excel",
+        "view:users",
+        "edit:excel",
+        "export:excel",
+        "view:reports"
+      ]
+    }
+  ];
+  
+  /* When API is ready, uncomment this code:
+  try {
+    const response = await fetch(`${AUTH_API_URL}/Admin/getRolesAndPermissions`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch roles and permissions with status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching roles and permissions:", error);
+    throw error;
+  }
+  */
+};
+
+/**
  * For development - Simulated authentication with role
  * @param {string} role - User role (admin, user, viewer)
  * @returns {Object} - Mock user data and token

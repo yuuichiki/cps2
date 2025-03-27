@@ -2,8 +2,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from "@/components/ui/use-toast";
-import { loginUser, validateToken, devAuthenticate,getMenuItems } from '@/services/authService';
-import { hasPermission } from '@/utils/permissions';
+import { loginUser, validateToken, devAuthenticate, getMenuItems } from '@/services/authService';
+import { hasPermission, fetchRolePermissions } from '@/utils/permissions';
 
 const AuthContext = createContext();
 
@@ -21,6 +21,15 @@ export const AuthProvider = ({ children }) => {
     }
   }, [location.pathname]);
 
+  // Initialize permissions when token changes
+  useEffect(() => {
+    if (token) {
+      fetchRolePermissions(token).catch(error => {
+        console.error('Error fetching role permissions:', error);
+      });
+    }
+  }, [token]);
+
   // Check if user is authenticated on initial load
   useEffect(() => {
     const checkAuth = async () => {
@@ -34,6 +43,8 @@ export const AuthProvider = ({ children }) => {
           
           if (userData) {
             setUser(userData);
+            // Fetch role permissions
+            await fetchRolePermissions(token);
           } else {
             // If token is invalid, clear everything
             logout();
