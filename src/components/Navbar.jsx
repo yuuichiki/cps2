@@ -27,10 +27,14 @@ import useResponsive from '@/hooks/useResponsive';
 import { 
   FileSpreadsheet, 
   Home, 
+  LayoutDashboard,
   LogOut,
   Settings,
   User, 
+  Users,
   Menu, 
+  BarChart,
+  Shield,
   X
 } from 'lucide-react';
 

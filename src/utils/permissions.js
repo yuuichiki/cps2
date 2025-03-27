@@ -56,36 +56,36 @@ export const STATIC_MENU_ITEMS = [
     icon: 'LayoutDashboard',
     permission: 'view:dashboard',
   },
-  {
-    title: 'Excel Viewer',
-    path: '/excel-viewer',
-    icon: 'FileSpreadsheet',
-    permission: 'view:reports',
-  },
-  {
-    title: 'Reports',
-    path: '/reports',
-    icon: 'BarChart',
-    permission: 'view:reports',
-  },
-  {
-    title: 'User Management',
-    path: '/users',
-    icon: 'Users',
-    permission: 'view:users',
-  },
-  {
-    title: 'Role Management',
-    path: '/roles',
-    icon: 'Shield',
-    permission: 'view:roles',
-  },
-  {
-    title: 'Settings',
-    path: '/settings',
-    icon: 'Settings',
-    permission: 'view:settings',
-  },
+  // {
+  //   title: 'Excel Viewer',
+  //   path: '/excel-viewer',
+  //   icon: 'FileSpreadsheet',
+  //   permission: 'view:reports',
+  // },
+  // {
+  //   title: 'Reports',
+  //   path: '/reports',
+  //   icon: 'BarChart',
+  //   permission: 'view:reports',
+  // },
+  // {
+  //   title: 'User Management',
+  //   path: '/users',
+  //   icon: 'Users',
+  //   permission: 'view:users',
+  // },
+  // {
+  //   title: 'Role Management',
+  //   path: '/roles',
+  //   icon: 'Shield',
+  //   permission: 'view:roles',
+  // },
+  // {
+  //   title: 'Settings',
+  //   path: '/settings',
+  //   icon: 'Settings',
+  //   permission: 'view:settings',
+  // },
 ];
 
 /**
