@@ -18,34 +18,12 @@ let dynamicRolePermissions = null;
 const DEFAULT_ROLE_PERMISSIONS = {
   [ROLES.ADMIN]: [
     'view:dashboard',
-    'view:settings',
-    'upload:excel',
-    'edit:excel',
-    'delete:excel',
-    'export:excel',
-    'manage:users',
-    'view:reports',
-    'view:roles',
-    'create:roles',
-    'edit:roles',
-    'delete:roles',
-    'view:users',
-    'create:users',
-    'edit:users',
-    'delete:users',
   ],
   [ROLES.USER]: [
     'view:dashboard',
-    'upload:excel',
-    'edit:excel',
-    'export:excel',
-    'view:reports',
-    'view:users',
   ],
   [ROLES.VIEWER]: [
     'view:dashboard',
-    'view:reports',
-    'export:excel',
   ],
 };
 

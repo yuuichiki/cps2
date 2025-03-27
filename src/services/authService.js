@@ -163,51 +163,51 @@ export const checkPermission = async (token, permission) => {
 export const getRolesAndPermissions = async (token) => {
   // For development purposes, return mock data
   // In production, this would be an API call
-  return [
-    {
-      "role": "admin",
-      "permissions": [
-        "export:excel",
-        "edit:excel",
-        "upload:excel",
-        "view:roles",
-        "edit:roles",
-        "view:users",
-        "delete:excel",
-        "create:roles",
-        "edit:users",
-        "create:users",
-        "delete:roles",
-        "view:dashboard",
-        "manage:users",
-        "view:reports",
-        "view:settings"
-      ]
-    },
-    {
-      "role": "viewer",
-      "permissions": [
-        "view:dashboard",
-        "view:reports",
-        "export:excel"
-      ]
-    },
-    {
-      "role": "user",
-      "permissions": [
-        "view:dashboard",
-        "upload:excel",
-        "view:users",
-        "edit:excel",
-        "export:excel",
-        "view:reports"
-      ]
-    }
-  ];
+  // return [
+  //   {
+  //     "role": "admin",
+  //     "permissions": [
+  //       "export:excel",
+  //       "edit:excel",
+  //       "upload:excel",
+  //       "view:roles",
+  //       "edit:roles",
+  //       "view:users",
+  //       "delete:excel",
+  //       "create:roles",
+  //       "edit:users",
+  //       "create:users",
+  //       "delete:roles",
+  //       "view:dashboard",
+  //       "manage:users",
+  //       "view:reports",
+  //       "view:settings"
+  //     ]
+  //   },
+  //   {
+  //     "role": "viewer",
+  //     "permissions": [
+  //       "view:dashboard",
+  //       "view:reports",
+  //       "export:excel"
+  //     ]
+  //   },
+  //   {
+  //     "role": "user",
+  //     "permissions": [
+  //       "view:dashboard",
+  //       "upload:excel",
+  //       "view:users",
+  //       "edit:excel",
+  //       "export:excel",
+  //       "view:reports"
+  //     ]
+  //   }
+  // ];
   
-  /* When API is ready, uncomment this code:
+
   try {
-    const response = await fetch(`${AUTH_API_URL}/Admin/getRolesAndPermissions`, {
+    const response = await fetch(`${AUTH_API_URL}/Admin/getSysRolesAndPermissions`, {
       method: "GET",
       headers: {
         "Authorization": `Bearer ${token}`,
@@ -225,7 +225,7 @@ export const getRolesAndPermissions = async (token) => {
     console.error("Error fetching roles and permissions:", error);
     throw error;
   }
-  */
+  
 };
 
 /**
