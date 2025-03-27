@@ -13,13 +13,7 @@ const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-
-  // useEffect(() => {
-  //   if (location.pathname !== '/login' && location.pathname !== '/500' && location.pathname !== '/404') {
-  //     localStorage.setItem('lastVisitedPage', location.pathname);
-  //   }
-  // }, [location.pathname]);
-  
+ 
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="mb-10">

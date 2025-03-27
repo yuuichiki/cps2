@@ -41,6 +41,11 @@ export const useFileUpload = (onFileUploaded) => {
       if (isUsingAPI) {
         // Process via API
         const apiResponse = await uploadExcelFile(file);
+        toast({
+          title: "File uploaded successfully",
+          description: `Response: ${JSON.stringify(apiResponse)}`,
+        });
+        console.log("apiResponse",JSON.stringify(apiResponse));
         clearInterval(progressInterval);
         setProgress(100);
         

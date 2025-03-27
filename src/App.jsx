@@ -13,7 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import Index from "./pages/Index";
 import Error404 from "./pages/Error404";
 import Error500 from "./pages/Error500";
-import Navbar from "./components/navbar";
+import Navbar from "./components/Navbar";
 import RoleManagement from "./pages/RoleManagement";
 import UserManagement from "./pages/UserManagement";
 

@@ -13,19 +13,19 @@ const Home = () => {
     <div className="min-h-[calc(100vh-64px)] flex flex-col items-center justify-center bg-background">
       <div className="text-center max-w-3xl mx-auto px-4">
         <div className="mb-8 flex justify-center">
-          <FileSpreadsheet className="h-20 w-20 text-primary" />
+          {/* <FileSpreadsheet className="h-20 w-20 text-primary" /> */}
         </div>
         <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
-          Home page -Excel File Magic
+          CPS system
         </h1>
         <p className="text-xl text-muted-foreground mb-8">
-          Upload, view, and analyze your Excel files with ease. Process multiple sheets and get insights from your data.
+          Upload, view, and analyze your Excel files
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           {isAuthenticated ? (
-            <Button size="lg" onClick={() => navigate('/dashboard')}>
-              Go to Dashboard
+            <Button size="lg" onClick={() => navigate('/excel-viewer')}>
+              Go to CPS 
             </Button>
           ) : (
             <>

@@ -112,7 +112,7 @@ const Index = () => {
         <CardFooter className="flex justify-center">
           {excelData && (
             <Button onClick={handleReset} variant="outline" className="w-full max-w-xs">
-              Upload Another File
+              Reupload File
             </Button>
           )}
         </CardFooter>
