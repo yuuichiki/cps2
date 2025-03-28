@@ -24,7 +24,7 @@ const Home = () => {
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           {isAuthenticated ? (
-            <Button size="lg" onClick={() => navigate('/excel-viewer')}>
+            <Button size="lg" onClick={() => navigate('/dashboard')}>
               Go to CPS 
             </Button>
           ) : (
