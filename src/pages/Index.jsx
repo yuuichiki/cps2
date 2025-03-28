@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Card, 
   CardContent, 
@@ -22,6 +23,7 @@ const Index = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingError, setProcessingError] = useState(null);
   const { token } = useAuth();
+  const navigate = useNavigate();
 
   const handleFileUploaded = (data, name) => {
     setExcelData(data);
@@ -31,7 +33,7 @@ const Index = () => {
       title: "File uploaded successfully",
       description: `${name} has been processed with ${data.totalSheets} sheets`,
     });
-    // No navigation happens here, keeping the user on the current page
+    navigate('/dashboard');
   };
 
   const handleReset = () => {
@@ -49,7 +51,6 @@ const Index = () => {
     try {
       const result = await processExcelData(excelData, token);
       
-      // Update the data with processed results
       setExcelData(result);
       
       toast({

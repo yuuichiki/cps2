@@ -27,7 +27,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <Navbar />
-          <main>
+          <main className="px-10">
             <Routes>
               {/* Public routes */}
               <Route path="/" element={<Home />} />

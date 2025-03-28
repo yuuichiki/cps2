@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-// import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from "@/components/ui/use-toast";
 import { File, FileUp } from 'lucide-react';
 import { Button } from 'devextreme-react/button';
+import DashboardHeader from '@/components/dashboard/DashboardHeader';
 
 import DataGrid, {
   Column,
@@ -35,7 +34,6 @@ const Dashboard = () => {
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupContent, setPopupContent] = useState('');
   const [currentRowId, setCurrentRowId] = useState(null);
-
 
   console.log('user', user);
   useEffect(() => {
@@ -511,163 +509,170 @@ const Dashboard = () => {
   };
 
   return (
-    <React.Fragment>
-      <DataGrid
-        id="gridContainer"
-        dataSource={dataSource}
-        onEditorPreparing={onEditorPreparing}
-        onRowRemoving={handleRowRemoving} 
-        onInitNewRow={() => console.log('InitNewRow')}
-        onRowInserting={() => console.log('RowInserting')}
-        onRowInserted={() => console.log('RowInserted')}
-        onRowUpdating={() => console.log('RowUpdating')}
-        onSaving={handleSaving}
-        onSaved={() => console.log('Saved')}
-        keyExpr="id"
-        allowColumnReordering={true}
-        showBorders={true}
-        showRowLines={true}
-        showColumnLines={true}
-        rowAlternationEnabled={true}
-        rowHeight={50}
-        onEditingStart={onEditingStart}
-        onEditCanceled={onEditingCancel}
-      >
-        <Paging enabled={true} />
+    <div className="py-6">
+      <DashboardHeader />
+      
+      <Card className="shadow-lg border-primary/20">
+        <CardContent className="p-0">
+          <DataGrid
+            id="gridContainer"
+            dataSource={dataSource}
+            onEditorPreparing={onEditorPreparing}
+            onRowRemoving={handleRowRemoving} 
+            onInitNewRow={() => console.log('InitNewRow')}
+            onRowInserting={() => console.log('RowInserting')}
+            onRowInserted={() => console.log('RowInserted')}
+            onRowUpdating={() => console.log('RowUpdating')}
+            onSaving={handleSaving}
+            onSaved={() => console.log('Saved')}
+            keyExpr="id"
+            allowColumnReordering={true}
+            showBorders={true}
+            showRowLines={true}
+            showColumnLines={true}
+            rowAlternationEnabled={true}
+            rowHeight={50}
+            onEditingStart={onEditingStart}
+            onEditCanceled={onEditingCancel}
+            className="rounded-lg overflow-hidden" 
+          >
+            <Paging enabled={true} />
 
-        <Editing
-          mode="popup"
-          allowUpdating={true}
-          allowAdding={user && user.roles && user.department.split(',').includes('PPC')}
-          allowDeleting={user && user.roles && user.department.split(',').includes('PPC')}
-          useIcons={true}
-        >
-          <Popup title="Detail" showTitle={true} width={700} height={525} onShowing={onShowing} />
-          <Form>
-            <Item itemType="group" colCount={2} colSpan={2}>
-              <Item dataField="workshop" />
-              <Item dataField="customer" />
-              <Item dataField="styleNo" />
-              <Item dataField="color" />
-              <Item dataField="colorName" />
-              <Item dataField="materialArrivalDate" />
-              <Item dataField="submissionDate" />
-              <Item dataField="fcpSubmissionDate" />
-              <Item 
-                dataField="mcdTracking"    
-                editorType={user && user.roles && user.department.split(',').includes('MCD') ? 'dxSelectBox' : 'dxTextBox'}
-                editorOptions={mcdtrackingOptions}
-                validationRules={[{ type: 'required', message: 'MCD Tracking is required' }]}
-                itemRender={renderMcdTrackingItem}
-              />
-              <Item 
-                dataField="mcdResponse"
-                editorType={user && user.roles && user.department.split(',').includes('MCD') ? 'dxSelectBox' : 'dxTextBox'}
-                editorOptions={mcdResponseOptions}
-                itemRender={renderMCDResponseItem}
-              />
-              <Item 
-                dataField="mcdNote"
-                editorType="dxTextArea"
-                colSpan={2}
-              />
-              <Item 
-                dataField="labTracking"
-                editorType={user && user.roles && user.department.split(',').includes('LAB') ? 'dxSelectBox' : 'dxTextBox'}
-                editorOptions={labtrackingOptions}
-                itemRender={renderLabResponseItem}
-              />
-              <Item 
-                dataField="labResponse"
-                editorType={user && user.roles && user.department.split(',').includes('LAB') ? 'dxSelectBox' : 'dxTextBox'}
-                editorOptions={labResponseOptions}
-                itemRender={renderLabResponseItem}
-              />
-              <Item 
-                dataField="labNote" 
-                editorType="dxTextArea"
-                colSpan={2}
-              />
-              <Item 
-                dataField="ppcTypeSelect" 
-                editorType={user && user.roles && user.department.split(',').includes('PPC') ? 'dxSelectBox' : 'dxTextBox'}
-                editorOptions={ppcReturnTypeItemsOptions}
-              />
-              <Item 
-                dataField="ppcResponder"
-                editorType='dxTextBox'
-              />
-              <Item 
-                dataField="ppcResponse"
-                editorType={user && user.roles && user.department.split(',').includes('PPC') ? 'dxSelectBox' : 'dxTextBox'}
-                editorOptions={ppcResponseOptions}
-              />
-              <Item
-                dataField="ppcNote"
-                editorType="dxTextArea"
-                colSpan={2}
-              />
-              <Item dataField="ppcPhone" />
-              <Item 
-                dataField="ppcFinished" 
-                editorType='dxCheckBox'
-              />
-            </Item>
-          </Form>
-        </Editing>
-
-        <Column dataField="workshop" caption="Workshop" width={120} />
-        <Column dataField="customer" caption="Customer" width={120} />
-        <Column dataField="styleNo" caption="StyleNo" width={150} />
-        <Column dataField="color" caption="Color" width={120} />
-        <Column dataField="colorName" caption="Color Name" width={120} />
-        <Column dataField="materialArrivalDate" caption="Material Arrival Date" dataType="date" width={180} />
-        <Column dataField="submissionDate" caption="Submission Date" dataType="date" width={150} />
-        <Column dataField="fcpSubmissionDate" caption="FCP Submission Date" dataType="date" width={180} />
-        <Column dataField="mcdTracking" caption="MCD Tracking" width={130} cellRender={renderTracking} />
-        <Column dataField="mcdResponse" caption="MCD Response" width={130} />
-        <Column dataField="mcdNote" caption="MCD Note" width={130} />
-        <Column dataField="mcdColorPalletFile" caption="MCD ColorPalletFile" width={200} cellRender={renderAttachmentButton} />
-        <Column dataField="labTracking" caption="LAB Tracking" width={130} cellRender={renderTracking} />
-        <Column dataField="labResponse" caption="LAB Response" width={130} cellRender={renderLabResponseCell} />
-        <Column dataField="labNote" caption="LAB Note" width={130} />
-        <Column dataField="ppcTypeSelect" caption="Return Type" width={120} />
-        <Column dataField="ppcResponder" caption="PPC Responder" width={150} />
-        <Column dataField="ppcResponse" caption="PPC Response" width={150} />
-        <Column dataField="ppcNote" caption="PPC Note" visible={true} width={180} /> 
-        <Column dataField="ppcPhone" caption="PPC Phone" width={120} />
-        <Column dataField="ppcFinished" caption="Is Finished" width={120} />
-        <Column 
-          dataField="doclog" 
-          caption="Log" 
-          width={120} 
-          cellRender={(cellData) => (
-            <button 
-              style={{ borderRadius: '12px', padding: '5px 10px' }} 
-              onClick={() => handleGetLog(user.id, cellData.data.id)}
+            <Editing
+              mode="popup"
+              allowUpdating={true}
+              allowAdding={user && user.roles && user.department.split(',').includes('PPC')}
+              allowDeleting={user && user.roles && user.department.split(',').includes('PPC')}
+              useIcons={true}
             >
-              View
-            </button>
-          )}
-        />
-      </DataGrid>
+              <Popup title="Detail" showTitle={true} width={700} height={525} onShowing={onShowing} />
+              <Form>
+                <Item itemType="group" colCount={2} colSpan={2}>
+                  <Item dataField="workshop" />
+                  <Item dataField="customer" />
+                  <Item dataField="styleNo" />
+                  <Item dataField="color" />
+                  <Item dataField="colorName" />
+                  <Item dataField="materialArrivalDate" />
+                  <Item dataField="submissionDate" />
+                  <Item dataField="fcpSubmissionDate" />
+                  <Item 
+                    dataField="mcdTracking"    
+                    editorType={user && user.roles && user.department.split(',').includes('MCD') ? 'dxSelectBox' : 'dxTextBox'}
+                    editorOptions={mcdtrackingOptions}
+                    validationRules={[{ type: 'required', message: 'MCD Tracking is required' }]}
+                    itemRender={renderMcdTrackingItem}
+                  />
+                  <Item 
+                    dataField="mcdResponse"
+                    editorType={user && user.roles && user.department.split(',').includes('MCD') ? 'dxSelectBox' : 'dxTextBox'}
+                    editorOptions={mcdResponseOptions}
+                    itemRender={renderMCDResponseItem}
+                  />
+                  <Item 
+                    dataField="mcdNote"
+                    editorType="dxTextArea"
+                    colSpan={2}
+                  />
+                  <Item 
+                    dataField="labTracking"
+                    editorType={user && user.roles && user.department.split(',').includes('LAB') ? 'dxSelectBox' : 'dxTextBox'}
+                    editorOptions={labtrackingOptions}
+                    itemRender={renderLabResponseItem}
+                  />
+                  <Item 
+                    dataField="labResponse"
+                    editorType={user && user.roles && user.department.split(',').includes('LAB') ? 'dxSelectBox' : 'dxTextBox'}
+                    editorOptions={labResponseOptions}
+                    itemRender={renderLabResponseItem}
+                  />
+                  <Item 
+                    dataField="labNote" 
+                    editorType="dxTextArea"
+                    colSpan={2}
+                  />
+                  <Item 
+                    dataField="ppcTypeSelect" 
+                    editorType={user && user.roles && user.department.split(',').includes('PPC') ? 'dxSelectBox' : 'dxTextBox'}
+                    editorOptions={ppcReturnTypeItemsOptions}
+                  />
+                  <Item 
+                    dataField="ppcResponder"
+                    editorType='dxTextBox'
+                  />
+                  <Item 
+                    dataField="ppcResponse"
+                    editorType={user && user.roles && user.department.split(',').includes('PPC') ? 'dxSelectBox' : 'dxTextBox'}
+                    editorOptions={ppcResponseOptions}
+                  />
+                  <Item
+                    dataField="ppcNote"
+                    editorType="dxTextArea"
+                    colSpan={2}
+                  />
+                  <Item dataField="ppcPhone" />
+                  <Item 
+                    dataField="ppcFinished" 
+                    editorType='dxCheckBox'
+                  />
+                </Item>
+              </Form>
+            </Editing>
 
-      <LogPopup
-        visible={popupVisible}
-        onHiding={() => setPopupVisible(false)}
-        dragEnabled={true}
-        closeOnOutsideClick={true}
-        showTitle={true}
-        title="Log Details"
-        width={1000}
-        height={800}
-      >
-        <div 
-          style={{ maxHeight: '900px', overflowY: 'auto' }} 
-          dangerouslySetInnerHTML={{ __html: popupContent }} 
-        />
-      </LogPopup>
-    </React.Fragment>
+            <Column dataField="workshop" caption="Workshop" width={120} />
+            <Column dataField="customer" caption="Customer" width={120} />
+            <Column dataField="styleNo" caption="StyleNo" width={150} />
+            <Column dataField="color" caption="Color" width={120} />
+            <Column dataField="colorName" caption="Color Name" width={120} />
+            <Column dataField="materialArrivalDate" caption="Material Arrival Date" dataType="date" width={180} />
+            <Column dataField="submissionDate" caption="Submission Date" dataType="date" width={150} />
+            <Column dataField="fcpSubmissionDate" caption="FCP Submission Date" dataType="date" width={180} />
+            <Column dataField="mcdTracking" caption="MCD Tracking" width={130} cellRender={renderTracking} />
+            <Column dataField="mcdResponse" caption="MCD Response" width={130} />
+            <Column dataField="mcdNote" caption="MCD Note" width={130} />
+            <Column dataField="mcdColorPalletFile" caption="MCD ColorPalletFile" width={200} cellRender={renderAttachmentButton} />
+            <Column dataField="labTracking" caption="LAB Tracking" width={130} cellRender={renderTracking} />
+            <Column dataField="labResponse" caption="LAB Response" width={130} cellRender={renderLabResponseCell} />
+            <Column dataField="labNote" caption="LAB Note" width={130} />
+            <Column dataField="ppcTypeSelect" caption="Return Type" width={120} />
+            <Column dataField="ppcResponder" caption="PPC Responder" width={150} />
+            <Column dataField="ppcResponse" caption="PPC Response" width={150} />
+            <Column dataField="ppcNote" caption="PPC Note" visible={true} width={180} /> 
+            <Column dataField="ppcPhone" caption="PPC Phone" width={120} />
+            <Column dataField="ppcFinished" caption="Is Finished" width={120} />
+            <Column 
+              dataField="doclog" 
+              caption="Log" 
+              width={120} 
+              cellRender={(cellData) => (
+                <button 
+                  style={{ borderRadius: '12px', padding: '5px 10px' }} 
+                  onClick={() => handleGetLog(user.id, cellData.data.id)}
+                >
+                  View
+                </button>
+              )}
+            />
+          </DataGrid>
+
+          <LogPopup
+            visible={popupVisible}
+            onHiding={() => setPopupVisible(false)}
+            dragEnabled={true}
+            closeOnOutsideClick={true}
+            showTitle={true}
+            title="Log Details"
+            width={1000}
+            height={800}
+          >
+            <div 
+              style={{ maxHeight: '900px', overflowY: 'auto' }} 
+              dangerouslySetInnerHTML={{ __html: popupContent }} 
+            />
+          </LogPopup>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

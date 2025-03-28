@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -44,7 +43,7 @@ const Login = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center px-10">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
         <span className="ml-2">Loading...</span>
       </div>
@@ -52,8 +51,8 @@ const Login = () => {
   }
 
   return (
-    <div className="container mx-auto flex items-center justify-center min-h-[calc(100vh-80px)] px-4">
-      <Card className="w-full max-w-md">
+    <div className="container mx-auto flex items-center justify-center min-h-[calc(100vh-80px)] px-10">
+      <Card className="w-full max-w-[600px]">
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-4">
             <div className="bg-primary/10 p-3 rounded-full">
