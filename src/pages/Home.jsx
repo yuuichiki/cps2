@@ -16,7 +16,7 @@ const Home = () => {
           {/* <FileSpreadsheet className="h-20 w-20 text-primary" /> */}
         </div>
         <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
-          CPS system
+        Color Palette system
         </h1>
         <p className="text-xl text-muted-foreground mb-8">
           Upload, view, and analyze your Excel files

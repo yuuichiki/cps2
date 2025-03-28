@@ -1,10 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from "@/components/ui/use-toast";
 import { File, FileUp } from 'lucide-react';
+import { Button } from 'devextreme-react/button';
 
 import DataGrid, {
   Column,
@@ -13,7 +14,7 @@ import DataGrid, {
   Popup,
   Form,
 } from 'devextreme-react/data-grid';
-
+import 'devextreme-react/text-area';
 import { Popup as LogPopup } from 'devextreme-react/popup'; 
 import { Item } from 'devextreme-react/form';
 import { 
@@ -35,6 +36,8 @@ const Dashboard = () => {
   const [popupContent, setPopupContent] = useState('');
   const [currentRowId, setCurrentRowId] = useState(null);
 
+
+  console.log('user', user);
   useEffect(() => {
     loadData();
   }, [user]);
@@ -185,7 +188,7 @@ const Dashboard = () => {
     e.editorOptions.disabled = true;
     const userData = user.roles ? user.roles.split(',') : [];
     
-    if (e.parentType === 'dataRow' && userData.includes('PPC')) {
+    if (e.parentType === 'dataRow' && user.department.includes('PPC')) {
       if (['workshop', 'customer', 'styleNo', 'color', 'colorName', 'materialArrivalDate', 'submissionDate', 'fcpSubmissionDate'].includes(e.dataField)) {
         if (e.row.data.mcdTracking === 'Unread' || e.row.isNewRow) {
           e.editorOptions.disabled = false;
@@ -202,7 +205,7 @@ const Dashboard = () => {
       }
     }
     
-    if (e.parentType === 'dataRow' && userData.includes('MCD')) {
+    if (e.parentType === 'dataRow' && user.department.includes('MCD')) {
       if (['mcdTracking', 'mcdResponse', 'mcdNote'].includes(e.dataField)) {
         if (e.row.data.labTracking === 'Unread' || e.row.data.labTracking === null || e.row.data.labTracking === 'null') {
           e.editorOptions.disabled = false;
@@ -211,7 +214,7 @@ const Dashboard = () => {
       }
     }
     
-    if (e.parentType === 'dataRow' && userData.includes('LAB')) {
+    if (e.parentType === 'dataRow' && user.department.includes('LAB')) {
       if (['labTracking', 'labResponse', 'labNote'].includes(e.dataField)) {
         if (e.row.data.ppcTypeSelect === null || e.row.data.ppcTypeSelect === 'null') {
           e.editorElement.style.backgroundColor = 'lightgreen';
@@ -535,8 +538,8 @@ const Dashboard = () => {
         <Editing
           mode="popup"
           allowUpdating={true}
-          allowAdding={user && user.roles && user.roles.split(',').includes('PPC')}
-          allowDeleting={user && user.roles && user.roles.split(',').includes('PPC')}
+          allowAdding={user && user.roles && user.department.split(',').includes('PPC')}
+          allowDeleting={user && user.roles && user.department.split(',').includes('PPC')}
           useIcons={true}
         >
           <Popup title="Detail" showTitle={true} width={700} height={525} onShowing={onShowing} />
@@ -552,14 +555,14 @@ const Dashboard = () => {
               <Item dataField="fcpSubmissionDate" />
               <Item 
                 dataField="mcdTracking"    
-                editorType={user && user.roles && user.roles.split(',').includes('MCD') ? 'dxSelectBox' : 'dxTextBox'}
+                editorType={user && user.roles && user.department.split(',').includes('MCD') ? 'dxSelectBox' : 'dxTextBox'}
                 editorOptions={mcdtrackingOptions}
                 validationRules={[{ type: 'required', message: 'MCD Tracking is required' }]}
                 itemRender={renderMcdTrackingItem}
               />
               <Item 
                 dataField="mcdResponse"
-                editorType={user && user.roles && user.roles.split(',').includes('MCD') ? 'dxSelectBox' : 'dxTextBox'}
+                editorType={user && user.roles && user.department.split(',').includes('MCD') ? 'dxSelectBox' : 'dxTextBox'}
                 editorOptions={mcdResponseOptions}
                 itemRender={renderMCDResponseItem}
               />
@@ -570,13 +573,13 @@ const Dashboard = () => {
               />
               <Item 
                 dataField="labTracking"
-                editorType={user && user.roles && user.roles.split(',').includes('LAB') ? 'dxSelectBox' : 'dxTextBox'}
+                editorType={user && user.roles && user.department.split(',').includes('LAB') ? 'dxSelectBox' : 'dxTextBox'}
                 editorOptions={labtrackingOptions}
                 itemRender={renderLabResponseItem}
               />
               <Item 
                 dataField="labResponse"
-                editorType={user && user.roles && user.roles.split(',').includes('LAB') ? 'dxSelectBox' : 'dxTextBox'}
+                editorType={user && user.roles && user.department.split(',').includes('LAB') ? 'dxSelectBox' : 'dxTextBox'}
                 editorOptions={labResponseOptions}
                 itemRender={renderLabResponseItem}
               />
@@ -587,7 +590,7 @@ const Dashboard = () => {
               />
               <Item 
                 dataField="ppcTypeSelect" 
-                editorType={user && user.roles && user.roles.split(',').includes('PPC') ? 'dxSelectBox' : 'dxTextBox'}
+                editorType={user && user.roles && user.department.split(',').includes('PPC') ? 'dxSelectBox' : 'dxTextBox'}
                 editorOptions={ppcReturnTypeItemsOptions}
               />
               <Item 
@@ -596,7 +599,7 @@ const Dashboard = () => {
               />
               <Item 
                 dataField="ppcResponse"
-                editorType={user && user.roles && user.roles.split(',').includes('PPC') ? 'dxSelectBox' : 'dxTextBox'}
+                editorType={user && user.roles && user.department.split(',').includes('PPC') ? 'dxSelectBox' : 'dxTextBox'}
                 editorOptions={ppcResponseOptions}
               />
               <Item

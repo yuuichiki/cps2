@@ -7,7 +7,7 @@ const NavbarLogo = () => {
   return (
     <div className="flex items-center space-x-2">
       <FileSpreadsheet className="h-6 w-6 text-primary" />
-      <Link to="/" className="text-xl font-bold">Excel File Magic</Link>
+      <Link to="/" className="text-xl font-bold">Color Palette system</Link>
     </div>
   );
 };
