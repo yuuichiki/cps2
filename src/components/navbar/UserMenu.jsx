@@ -10,10 +10,20 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { navigationMenuTriggerStyle } from "@/components/ui/navigation-menu";
-import { User, Settings, LogOut } from 'lucide-react';
+import { User, Settings, LogOut, Globe } from 'lucide-react';
 
 const UserMenu = ({ user, logout }) => {
   const navigate = useNavigate();
+
+  // Map language codes to full names
+  const getLanguageName = (code) => {
+    switch (code) {
+      case 'en': return 'English';
+      case 'zh': return 'Chinese';
+      case 'vi': return 'Vietnamese';
+      default: return 'English';
+    }
+  };
 
   return (
     <DropdownMenu>
@@ -32,6 +42,12 @@ const UserMenu = ({ user, logout }) => {
             <p className="text-sm font-medium">{user?.username}</p>
             {user?.role && (
               <p className="text-xs text-muted-foreground">Role: {user.role}</p>
+            )}
+            {user?.language && (
+              <div className="flex items-center text-xs text-muted-foreground mt-1">
+                <Globe className="h-3 w-3 mr-1" />
+                {getLanguageName(user.language)}
+              </div>
             )}
           </div>
         </DropdownMenuLabel>

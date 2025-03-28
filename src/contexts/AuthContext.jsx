@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from "@/components/ui/use-toast";
 import { loginUser, validateToken, devAuthenticate, getMenuItems } from '@/services/authService';
 import { hasPermission, fetchRolePermissions } from '@/utils/permissions';
+import { LANG } from '@/utils/constants';
 
 const AuthContext = createContext();
 
@@ -11,8 +12,14 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
+  const [language, setLanguage] = useState(localStorage.getItem('language') || LANG.ENGLISH);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Store language preference
+  useEffect(() => {
+    localStorage.setItem('language', language);
+  }, [language]);
 
   // Store the current path when it changes (except for login page)
   useEffect(() => {
@@ -60,7 +67,7 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, [token]);
 
-  const login = async (username, password) => {
+  const login = async (username, password, userLanguage) => {
     try {
       setLoading(true);
       
@@ -69,7 +76,17 @@ export const AuthProvider = ({ children }) => {
       // Save token to localStorage and state
       localStorage.setItem('token', data.token);
       setToken(data.token);
-      setUser(data.user);
+      
+      // Set user language if provided
+      if (userLanguage) {
+        setLanguage(userLanguage);
+      }
+      
+      // Update user with language preference
+      setUser({
+        ...data.user,
+        language: userLanguage || language
+      });
       
       toast({
         title: "Login successful",
@@ -105,12 +122,22 @@ export const AuthProvider = ({ children }) => {
   };
 
   // For development/testing - simulates a successful login with role
-  const devLogin = (role = 'user') => {
+  const devLogin = (role = 'user', userLanguage) => {
     const mockData = devAuthenticate(role);
     
     localStorage.setItem('token', mockData.token);
     setToken(mockData.token);
-    setUser(mockData.user);
+    
+    // Set user language if provided
+    if (userLanguage) {
+      setLanguage(userLanguage);
+    }
+    
+    // Update user with language preference
+    setUser({
+      ...mockData.user,
+      language: userLanguage || language
+    });
     
     toast({
       title: "Dev login successful",
@@ -123,16 +150,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Check if user has specific permission
-  // const checkPermission = (permission) => {
-  //   return checkPermission(token,permission)
-  // };
-
   const checkPermission = (permission) => {
     return hasPermission(user, permission);
   };
 
-
- 
   const getMenus = async () => {
     try {
       return await getMenuItems(token);
@@ -142,12 +163,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-
   return (
     <AuthContext.Provider value={{ 
       user, 
       token, 
       loading,
+      language,
+      setLanguage,
       login, 
       logout,
       devLogin,

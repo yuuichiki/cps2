@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from '@/contexts/AuthContext';
 import { ROLES } from '@/utils/permissions';
+import { LANG } from '@/utils/constants';
 import { FileSpreadsheet, Loader2 } from 'lucide-react';
 import {
   Select,
@@ -16,7 +18,7 @@ import {
 } from "@/components/ui/select";
 
 const Login = () => {
-  const { login, devLogin, loading } = useAuth();
+  const { login, devLogin, loading, setLanguage: setAuthLanguage } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
@@ -24,10 +26,16 @@ const Login = () => {
   });
   const [language, setLanguage] = useState(LANG.ENGLISH);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [devRole, setDevRole] = useState(ROLES.ADMIN);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleLanguageChange = (value) => {
+    setLanguage(value);
+    setAuthLanguage(value);
   };
 
   const handleSubmit = async (e) => {
@@ -35,7 +43,7 @@ const Login = () => {
     setIsSubmitting(true);
     try {
       const { username, password } = formData;
-      await login(username, password);
+      await login(username, password, language);
     } finally {
       setIsSubmitting(false);
     }
@@ -52,7 +60,7 @@ const Login = () => {
 
   return (
     <div className="container mx-auto flex items-center justify-center min-h-[calc(100vh-80px)] px-10">
-      <Card className="w-[1000px] max-w-[1000px]">
+      <Card className="w-[600px] max-w-[600px]">
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-4">
             <div className="bg-primary/10 p-3 rounded-full">
@@ -119,7 +127,7 @@ const Login = () => {
             <div className="col-span-1">
               <Select 
                 value={language} 
-                onValueChange={setLanguage}
+                onValueChange={handleLanguageChange}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Language" />
@@ -136,7 +144,7 @@ const Login = () => {
                 variant="outline" 
                 className="w-full" 
                 type="button"
-                onClick={() => devLogin(devRole)}
+                onClick={() => devLogin(devRole, language)}
               >
                 Dev Login ({devRole})
               </Button>
