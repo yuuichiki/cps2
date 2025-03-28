@@ -22,7 +22,7 @@ const Login = () => {
     username: '',
     password: '',
   });
-  const [devRole, setDevRole] = useState(ROLES.USER);
+  const [language, setLanguage] = useState(LANG.ENGLISH);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
@@ -52,7 +52,7 @@ const Login = () => {
 
   return (
     <div className="container mx-auto flex items-center justify-center min-h-[calc(100vh-80px)] px-10">
-      <Card className="w-full max-w-[600px]">
+      <Card className="w-[1000px] max-w-[1000px]">
         <CardHeader className="space-y-1">
           <div className="flex justify-center mb-4">
             <div className="bg-primary/10 p-3 rounded-full">
@@ -118,16 +118,16 @@ const Login = () => {
           <div className="grid grid-cols-4 gap-4 w-full">
             <div className="col-span-1">
               <Select 
-                value={devRole} 
-                onValueChange={setDevRole}
+                value={language} 
+                onValueChange={setLanguage}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Role" />
+                  <SelectValue placeholder="Language" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ROLES.ADMIN}>Admin</SelectItem>
-                  <SelectItem value={ROLES.USER}>User</SelectItem>
-                  <SelectItem value={ROLES.VIEWER}>Viewer</SelectItem>
+                  <SelectItem value={LANG.ENGLISH}>English</SelectItem>
+                  <SelectItem value={LANG.CHINESE}>Chinese</SelectItem>
+                  <SelectItem value={LANG.VIETNAM}>Vietnam</SelectItem>
                 </SelectContent>
               </Select>
             </div>
