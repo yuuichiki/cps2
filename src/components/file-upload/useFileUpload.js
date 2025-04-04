@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import * as XLSX from 'xlsx';
 import { uploadExcelFile } from '@/services/api';
 import { toast } from "@/components/ui/use-toast";
+import { useNavigate } from 'react-router-dom';
 
 export const useFileUpload = (onFileUploaded) => {
   const [isDragging, setIsDragging] = useState(false);
@@ -10,6 +11,7 @@ export const useFileUpload = (onFileUploaded) => {
   const [error, setError] = useState(null);
   const [isUsingAPI, setIsUsingAPI] = useState(false);
   const fileInputRef = useRef(null);
+  const navigate = useNavigate();
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -52,6 +54,7 @@ export const useFileUpload = (onFileUploaded) => {
         setTimeout(() => {
           setIsLoading(false);
           onFileUploaded(apiResponse, file.name);
+          navigate('/excel-viewer');
         }, 500);
       } else {
         // Process locally with XLSX
@@ -94,6 +97,7 @@ export const useFileUpload = (onFileUploaded) => {
             setTimeout(() => {
               setIsLoading(false);
               onFileUploaded(processedData, file.name);
+              navigate('/excel-viewer');
             }, 500);
           } catch (err) {
             handleError(err, progressInterval);
