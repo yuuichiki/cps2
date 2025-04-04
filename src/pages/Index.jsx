@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -14,7 +15,7 @@ import { FileUploader } from '@/components/FileUploader';
 import { ExcelViewer } from '@/components/ExcelViewer';
 import { toast } from "@/components/ui/use-toast";
 import { processExcelData } from '@/services/api';
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, FileSpreadsheet } from "lucide-react";
 import { useAuth } from '@/contexts/AuthContext';
 
 const Index = () => {
@@ -33,7 +34,6 @@ const Index = () => {
       title: "File uploaded successfully",
       description: `${name} has been processed with ${data.totalSheets} sheets`,
     });
-    navigate('/dashboard');
   };
 
   const handleReset = () => {
@@ -73,9 +73,12 @@ const Index = () => {
     <div className="container mx-auto py-10 px-4 min-h-screen flex flex-col items-center justify-center">
       <Card className="w-full max-w-4xl shadow-lg">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Index Page - Excel File Viewer</CardTitle>
+          <CardTitle className="text-2xl font-bold">Excel Data Review</CardTitle>
           <CardDescription>
-            Upload your Excel file (.xlsx, .xls) to view and analyze data from multiple sheets
+            {excelData ? 
+              "Review your Excel data before continuing to dashboard" :
+              "Upload your Excel file (.xlsx, .xls) to view and analyze data from multiple sheets"
+            }
           </CardDescription>
         </CardHeader>
         <CardContent>

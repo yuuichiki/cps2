@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { FileSpreadsheet, Download, Search, File } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
+import { FileSpreadsheet, Download, Search, File, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -12,6 +13,7 @@ export const ExcelViewer = ({ data, fileName }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
   const [activeSheet, setActiveSheet] = useState(data.sheets[0].sheetName);
+  const navigate = useNavigate();
   
   const { sheets } = data;
   
@@ -48,6 +50,10 @@ export const ExcelViewer = ({ data, fileName }) => {
     });
     
     XLSX.writeFile(workbook, fileName);
+  };
+  
+  const handleReturnToDashboard = () => {
+    navigate('/dashboard');
   };
   
   return (
@@ -193,6 +199,13 @@ export const ExcelViewer = ({ data, fileName }) => {
           </TabsContent>
         ))}
       </Tabs>
+      
+      <div className="flex justify-center mt-6">
+        <Button onClick={handleReturnToDashboard} className="w-full max-w-xs bg-green-600 hover:bg-green-700">
+          <CheckCircle size={16} className="mr-2" />
+          OK - Return to Dashboard
+        </Button>
+      </div>
     </div>
   );
 };
