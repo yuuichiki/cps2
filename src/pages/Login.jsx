@@ -139,6 +139,16 @@ const Login = () => {
                 </SelectContent>
               </Select>
             </div>
+            <div className="col-span-3">
+              <Button 
+                variant="outline" 
+                className="w-full" 
+                type="button"
+                onClick={() => devLogin(devRole, language)}
+              >
+                Dev Login ({devRole})
+              </Button>
+            </div>
           </div>
         </CardFooter>
       </Card>

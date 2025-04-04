@@ -57,14 +57,7 @@ const Navbar = () => {
   const location = useLocation();
   const { isMobile } = useResponsive();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const getLanguageName = (code) => {
-    switch (code) {
-      case 'en': return 'English';
-      case 'zh': return 'Chinese';
-      case 'vi': return 'Vietnamese';
-      default: return 'English';
-    }
-  };
+
   useEffect(() => {
     const fetchMenuItems = async () => {
       if (!user) {
