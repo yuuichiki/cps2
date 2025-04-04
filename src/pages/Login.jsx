@@ -6,7 +6,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from '@/contexts/AuthContext';
-import { ROLES } from '@/utils/permissions';
 import { LANG } from '@/utils/constants';
 import { FileSpreadsheet, Loader2 } from 'lucide-react';
 import {
@@ -18,7 +17,7 @@ import {
 } from "@/components/ui/select";
 
 const Login = () => {
-  const { login, devLogin, loading, setLanguage: setAuthLanguage } = useAuth();
+  const { login, loading, setLanguage: setAuthLanguage } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
@@ -26,7 +25,6 @@ const Login = () => {
   });
   const [language, setLanguage] = useState(LANG.ENGLISH);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [devRole, setDevRole] = useState(ROLES.ADMIN);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -97,39 +95,12 @@ const Login = () => {
                 onChange={handleChange}
               />
             </div>
-            <Button 
-              type="submit" 
-              className="w-full" 
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Logging in...
-                </>
-              ) : 'Login'}
-            </Button>
-          </form>
-        </CardContent>
-        <CardFooter className="flex flex-col space-y-4">
-          <div className="relative w-full">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">
-                Development Options
-              </span>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-4 gap-4 w-full">
-            <div className="col-span-1">
+            <div className="flex justify-between items-center">
               <Select 
                 value={language} 
                 onValueChange={handleLanguageChange}
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-[140px]">
                   <SelectValue placeholder="Language" />
                 </SelectTrigger>
                 <SelectContent>
@@ -138,19 +109,21 @@ const Login = () => {
                   <SelectItem value={LANG.VIETNAM}>Vietnam</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-            <div className="col-span-3">
               <Button 
-                variant="outline" 
-                className="w-full" 
-                type="button"
-                onClick={() => devLogin(devRole, language)}
+                type="submit" 
+                className="w-[140px]" 
+                disabled={isSubmitting}
               >
-                Dev Login ({devRole})
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Logging in...
+                  </>
+                ) : 'Login'}
               </Button>
             </div>
-          </div>
-        </CardFooter>
+          </form>
+        </CardContent>
       </Card>
     </div>
   );
