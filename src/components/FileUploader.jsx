@@ -3,7 +3,6 @@ import React from 'react';
 import { useFileUpload } from './file-upload/useFileUpload';
 import FileUploadArea from './file-upload/FileUploadArea';
 import ProcessingIndicator from './file-upload/ProcessingIndicator';
-import ProcessingToggle from './file-upload/ProcessingToggle';
 
 export const FileUploader = ({ onFileUploaded }) => {
   const { 
@@ -11,14 +10,12 @@ export const FileUploader = ({ onFileUploaded }) => {
     isLoading, 
     progress,
     error,
-    isUsingAPI,
     fileInputRef,
     handleDragOver,
     handleDragLeave,
     handleDrop,
     handleFileChange,
-    handleButtonClick,
-    toggleProcessingMode
+    handleButtonClick
   } = useFileUpload(onFileUploaded);
 
   return (
@@ -39,18 +36,12 @@ export const FileUploader = ({ onFileUploaded }) => {
       />
       
       {!isLoading ? (
-        <>
-          <FileUploadArea 
-            isDragging={isDragging}
-            error={error}
-            onButtonClick={handleButtonClick}
-            isLoading={isLoading}
-          />
-          <ProcessingToggle 
-            isUsingAPI={isUsingAPI} 
-            onToggle={toggleProcessingMode} 
-          />
-        </>
+        <FileUploadArea 
+          isDragging={isDragging}
+          error={error}
+          onButtonClick={handleButtonClick}
+          isLoading={isLoading}
+        />
       ) : (
         <ProcessingIndicator progress={progress} />
       )}

@@ -1,5 +1,5 @@
+
 import { useState, useRef } from 'react';
-import * as XLSX from 'xlsx';
 import { uploadExcelFile } from '@/services/api';
 import { toast } from "@/components/ui/use-toast";
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +9,6 @@ export const useFileUpload = (onFileUploaded) => {
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
-  const [isUsingAPI, setIsUsingAPI] = useState(false);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
@@ -40,76 +39,21 @@ export const useFileUpload = (onFileUploaded) => {
     }, 100);
 
     try {
-      if (isUsingAPI) {
-        // Process via API
-        const apiResponse = await uploadExcelFile(file);
-        toast({
-          title: "File uploaded successfully",
-          description: `Response: ${JSON.stringify(apiResponse)}`,
-        });
-        console.log("apiResponse",JSON.stringify(apiResponse));
-        clearInterval(progressInterval);
-        setProgress(100);
-        
-        setTimeout(() => {
-          setIsLoading(false);
-          onFileUploaded(apiResponse, file.name);
-          navigate('/excel-viewer');
-        }, 500);
-      } else {
-        // Process locally with XLSX
-        const reader = new FileReader();
-        
-        reader.onload = (event) => {
-          try {
-            const data = new Uint8Array(event.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            
-            // Process all sheets
-            const sheets = workbook.SheetNames.map(sheetName => {
-              const worksheet = workbook.Sheets[sheetName];
-              const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-              
-              // Process headers and rows for this sheet
-              const headers = jsonData[0] || [];
-              const rows = jsonData.slice(1);
-              
-              return {
-                sheetName,
-                headers,
-                rows,
-                totalRows: rows.length,
-                totalColumns: headers.length
-              };
-            });
-            
-            // Create structured data with all sheets
-            const processedData = {
-              sheets,
-              fileName: file.name,
-              totalSheets: sheets.length
-            };
-            
-            // Complete progress and finish loading
-            clearInterval(progressInterval);
-            setProgress(100);
-            
-            setTimeout(() => {
-              setIsLoading(false);
-              onFileUploaded(processedData, file.name);
-              navigate('/excel-viewer');
-            }, 500);
-          } catch (err) {
-            handleError(err, progressInterval);
-          }
-        };
-        
-        reader.onerror = () => {
-          handleError(new Error("Failed to read file"), progressInterval);
-        };
-        
-        reader.readAsArrayBuffer(file);
-      }
+      // Process via API
+      const apiResponse = await uploadExcelFile(file);
+      toast({
+        title: "File uploaded successfully",
+        description: `File has been processed successfully`,
+      });
+      console.log("apiResponse", JSON.stringify(apiResponse));
+      clearInterval(progressInterval);
+      setProgress(100);
+      
+      setTimeout(() => {
+        setIsLoading(false);
+        onFileUploaded(apiResponse, file.name);
+        navigate('/excel-viewer');
+      }, 500);
     } catch (err) {
       handleError(err, progressInterval);
     }
@@ -175,26 +119,16 @@ export const useFileUpload = (onFileUploaded) => {
     fileInputRef.current.click();
   };
 
-  const toggleProcessingMode = () => {
-    setIsUsingAPI(!isUsingAPI);
-    toast({
-      title: `Processing mode changed`,
-      description: `Now using ${!isUsingAPI ? 'API' : 'local'} processing`,
-    });
-  };
-
   return {
     isDragging,
     isLoading,
     progress,
     error,
-    isUsingAPI,
     fileInputRef,
     handleDragOver,
     handleDragLeave,
     handleDrop,
     handleFileChange,
-    handleButtonClick,
-    toggleProcessingMode
+    handleButtonClick
   };
 };
