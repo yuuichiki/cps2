@@ -46,10 +46,10 @@ export const FileUploader = ({ onFileUploaded }) => {
             onButtonClick={handleButtonClick}
             isLoading={isLoading}
           />
-          <ProcessingToggle 
+          {/* <ProcessingToggle 
             isUsingAPI={isUsingAPI} 
             onToggle={toggleProcessingMode} 
-          />
+          /> */}
         </>
       ) : (
         <ProcessingIndicator progress={progress} />

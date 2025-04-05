@@ -40,23 +40,23 @@ export const useFileUpload = (onFileUploaded) => {
     }, 100);
 
     try {
-      if (isUsingAPI) {
-        // Process via API
-        const apiResponse = await uploadExcelFile(file);
-        toast({
-          title: "File uploaded successfully",
-          description: `Response: ${JSON.stringify(apiResponse)}`,
-        });
-        console.log("apiResponse",JSON.stringify(apiResponse));
-        clearInterval(progressInterval);
-        setProgress(100);
+      // if (isUsingAPI) {
+      //   // Process via API
+      //   const apiResponse = await uploadExcelFile(file);
+      //   toast({
+      //     title: "File uploaded successfully",
+      //     description: `Response: ${JSON.stringify(apiResponse)}`,
+      //   });
+      //   //console.log("apiResponse",JSON.stringify(apiResponse));
+      //   clearInterval(progressInterval);
+      //   setProgress(100);
         
-        setTimeout(() => {
-          setIsLoading(false);
-          onFileUploaded(apiResponse, file.name);
-          navigate('/excel-viewer');
-        }, 500);
-      } else {
+      //   setTimeout(() => {
+      //     setIsLoading(false);
+      //     onFileUploaded(apiResponse, file.name);
+      //     navigate('/excel-viewer');
+      //   }, 500);
+      // } else {
         // Process locally with XLSX
         const reader = new FileReader();
         
@@ -109,7 +109,7 @@ export const useFileUpload = (onFileUploaded) => {
         };
         
         reader.readAsArrayBuffer(file);
-      }
+      // }
     } catch (err) {
       handleError(err, progressInterval);
     }
