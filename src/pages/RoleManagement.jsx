@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,9 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from '@/contexts/AuthContext';
 import { getCrudPermissions } from '@/utils/permissions';
 import { toast } from '@/components/ui/use-toast';
-import { PlusCircle, Edit, Trash2, Shield, Loader2 } from 'lucide-react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getRoles, createRole, updateRole, deleteRole } from '@/services/roleService';
+import { PlusCircle, Edit, Trash2, Shield } from 'lucide-react';
 
 // Group permissions by category for easier management
 const PERMISSION_GROUPS = [
@@ -65,7 +63,31 @@ const ALL_PERMISSIONS = PERMISSION_GROUPS.flatMap(group => group.permissions);
 const RoleManagement = () => {
   const { user } = useAuth();
   const permissions = getCrudPermissions(user, 'roles');
-  const queryClient = useQueryClient();
+  
+  // Sample role data (in a real app, this would come from API)
+  const [roles, setRoles] = useState([
+    { 
+      id: 1, 
+      name: 'Admin', 
+      code: 'admin', 
+      description: 'Full system access',
+      permissions: ALL_PERMISSIONS.map(p => p.id)
+    },
+    { 
+      id: 2, 
+      name: 'Regular User', 
+      code: 'user', 
+      description: 'Standard user access',
+      permissions: ['view:dashboard', 'upload:excel', 'edit:excel', 'export:excel', 'view:reports', 'view:users']
+    },
+    { 
+      id: 3, 
+      name: 'Viewer', 
+      code: 'viewer', 
+      description: 'Read-only access',
+      permissions: ['view:dashboard', 'view:reports', 'export:excel']
+    },
+  ]);
   
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -76,74 +98,6 @@ const RoleManagement = () => {
     code: '',
     description: '',
     permissions: [],
-  });
-
-  // Fetch roles
-  const { data: roles = [], isLoading, error } = useQuery({
-    queryKey: ['roles'],
-    queryFn: getRoles,
-  });
-
-  // Create role mutation
-  const createRoleMutation = useMutation({
-    mutationFn: createRole,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['roles'] });
-      setIsCreateDialogOpen(false);
-      resetForm();
-      toast({
-        title: "Role Created",
-        description: `Role ${formData.name} was created successfully.`,
-      });
-    },
-    onError: (error) => {
-      toast({
-        variant: "destructive",
-        title: "Error Creating Role",
-        description: error.message || "An error occurred while creating the role.",
-      });
-    },
-  });
-
-  // Update role mutation
-  const updateRoleMutation = useMutation({
-    mutationFn: ({ roleId, roleData }) => updateRole(roleId, roleData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['roles'] });
-      setIsEditDialogOpen(false);
-      resetForm();
-      toast({
-        title: "Role Updated",
-        description: `Role ${formData.name} was updated successfully.`,
-      });
-    },
-    onError: (error) => {
-      toast({
-        variant: "destructive",
-        title: "Error Updating Role",
-        description: error.message || "An error occurred while updating the role.",
-      });
-    },
-  });
-
-  // Delete role mutation
-  const deleteRoleMutation = useMutation({
-    mutationFn: deleteRole,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['roles'] });
-      setIsDeleteDialogOpen(false);
-      toast({
-        title: "Role Deleted",
-        description: `Role ${selectedRole?.name} was deleted successfully.`,
-      });
-    },
-    onError: (error) => {
-      toast({
-        variant: "destructive",
-        title: "Error Deleting Role",
-        description: error.message || "An error occurred while deleting the role.",
-      });
-    },
   });
 
   // Handle form input changes
@@ -225,8 +179,23 @@ const RoleManagement = () => {
       return;
     }
 
-    // Send create request
-    createRoleMutation.mutate(formData);
+    // In a real app, this would be an API call
+    const newRole = {
+      id: roles.length + 1,
+      name: formData.name,
+      code: formData.code,
+      description: formData.description,
+      permissions: formData.permissions,
+    };
+
+    setRoles([...roles, newRole]);
+    resetForm();
+    setIsCreateDialogOpen(false);
+    
+    toast({
+      title: "Role Created",
+      description: `Role ${newRole.name} was created successfully.`,
+    });
   };
 
   // Update an existing role
@@ -241,18 +210,41 @@ const RoleManagement = () => {
       return;
     }
 
-    // Send update request
-    updateRoleMutation.mutate({ 
-      roleId: selectedRole.id, 
-      roleData: formData 
+    // In a real app, this would be an API call
+    const updatedRoles = roles.map(r => {
+      if (r.id === selectedRole.id) {
+        return {
+          ...r,
+          name: formData.name,
+          code: formData.code,
+          description: formData.description,
+          permissions: formData.permissions,
+        };
+      }
+      return r;
+    });
+
+    setRoles(updatedRoles);
+    resetForm();
+    setIsEditDialogOpen(false);
+    
+    toast({
+      title: "Role Updated",
+      description: `Role ${formData.name} was updated successfully.`,
     });
   };
 
   // Delete a role
   const handleDeleteRole = () => {
-    if (selectedRole?.id) {
-      deleteRoleMutation.mutate(selectedRole.id);
-    }
+    // In a real app, this would be an API call
+    const filteredRoles = roles.filter(r => r.id !== selectedRole.id);
+    setRoles(filteredRoles);
+    setIsDeleteDialogOpen(false);
+    
+    toast({
+      title: "Role Deleted",
+      description: `Role ${selectedRole.name} was deleted successfully.`,
+    });
   };
 
   // Render permission checkboxes grouped by category
@@ -283,28 +275,6 @@ const RoleManagement = () => {
       </div>
     ));
   };
-
-  // Handle API errors
-  if (error) {
-    return (
-      <div className="container mx-auto py-10 px-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center text-destructive">
-              <p>Error loading roles: {error.message || "Unknown error"}</p>
-              <Button 
-                variant="outline" 
-                className="mt-4" 
-                onClick={() => queryClient.invalidateQueries({ queryKey: ['roles'] })}
-              >
-                Retry
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   return (
     <div className="container mx-auto py-10 px-4">
@@ -357,164 +327,118 @@ const RoleManagement = () => {
                   <DialogClose asChild>
                     <Button variant="outline">Cancel</Button>
                   </DialogClose>
-                  <Button 
-                    onClick={handleCreateRole}
-                    disabled={createRoleMutation.isPending}
-                  >
-                    {createRoleMutation.isPending ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Creating...
-                      </>
-                    ) : 'Create Role'}
-                  </Button>
+                  <Button onClick={handleCreateRole}>Create Role</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
           )}
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <div className="flex justify-center items-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <span className="ml-2">Loading roles...</span>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Code</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Permissions</TableHead>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Code</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead>Permissions</TableHead>
+                {(permissions.canEdit || permissions.canDelete) && (
+                  <TableHead className="text-right">Actions</TableHead>
+                )}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {roles.map((role) => (
+                <TableRow key={role.id}>
+                  <TableCell className="font-medium">{role.name}</TableCell>
+                  <TableCell>
+                    <code className="bg-muted px-1 py-0.5 rounded text-sm">{role.code}</code>
+                  </TableCell>
+                  <TableCell>{role.description}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {role.permissions.length > 0 ? (
+                        <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full">
+                          {role.permissions.length} permissions
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">No permissions</span>
+                      )}
+                    </div>
+                  </TableCell>
                   {(permissions.canEdit || permissions.canDelete) && (
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableCell className="text-right">
+                      {permissions.canEdit && (
+                        <Dialog open={isEditDialogOpen && selectedRole?.id === role.id} onOpenChange={(open) => !open && setIsEditDialogOpen(false)}>
+                          <DialogTrigger asChild>
+                            <Button variant="ghost" size="icon" onClick={() => openEditDialog(role)}>
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                            <DialogHeader>
+                              <DialogTitle>Edit Role</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4 py-4">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="edit-name">Role Name</Label>
+                                  <Input id="edit-name" name="name" value={formData.name} onChange={handleChange} />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="edit-code">Role Code</Label>
+                                  <Input id="edit-code" name="code" value={formData.code} onChange={handleChange} />
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="edit-description">Description</Label>
+                                <Input id="edit-description" name="description" value={formData.description} onChange={handleChange} />
+                              </div>
+                              <Separator />
+                              <div>
+                                <h3 className="text-lg font-medium mb-4">Permissions</h3>
+                                {renderPermissionGroups()}
+                              </div>
+                            </div>
+                            <DialogFooter>
+                              <DialogClose asChild>
+                                <Button variant="outline">Cancel</Button>
+                              </DialogClose>
+                              <Button onClick={handleUpdateRole}>Update Role</Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      )}
+                      
+                      {permissions.canDelete && (
+                        <Dialog open={isDeleteDialogOpen && selectedRole?.id === role.id} onOpenChange={(open) => !open && setIsDeleteDialogOpen(false)}>
+                          <DialogTrigger asChild>
+                            <Button variant="ghost" size="icon" onClick={() => openDeleteDialog(role)}>
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Confirm Deletion</DialogTitle>
+                            </DialogHeader>
+                            <div className="py-4">
+                              <p>Are you sure you want to delete role <strong>{selectedRole?.name}</strong>?</p>
+                              <p className="text-sm text-muted-foreground mt-2">This action cannot be undone.</p>
+                            </div>
+                            <DialogFooter>
+                              <DialogClose asChild>
+                                <Button variant="outline">Cancel</Button>
+                              </DialogClose>
+                              <Button variant="destructive" onClick={handleDeleteRole}>Delete Role</Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      )}
+                    </TableCell>
                   )}
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {roles.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={(permissions.canEdit || permissions.canDelete) ? 5 : 4} className="text-center py-8 text-muted-foreground">
-                      No roles found
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  roles.map((role) => (
-                    <TableRow key={role.id}>
-                      <TableCell className="font-medium">{role.name}</TableCell>
-                      <TableCell>
-                        <code className="bg-muted px-1 py-0.5 rounded text-sm">{role.code}</code>
-                      </TableCell>
-                      <TableCell>{role.description}</TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {role.permissions.length > 0 ? (
-                            <span className="bg-primary/10 text-primary text-xs px-2 py-1 rounded-full">
-                              {role.permissions.length} permissions
-                            </span>
-                          ) : (
-                            <span className="text-muted-foreground text-xs">No permissions</span>
-                          )}
-                        </div>
-                      </TableCell>
-                      {(permissions.canEdit || permissions.canDelete) && (
-                        <TableCell className="text-right">
-                          {permissions.canEdit && (
-                            <Dialog open={isEditDialogOpen && selectedRole?.id === role.id} onOpenChange={(open) => !open && setIsEditDialogOpen(false)}>
-                              <DialogTrigger asChild>
-                                <Button variant="ghost" size="icon" onClick={() => openEditDialog(role)}>
-                                  <Edit className="h-4 w-4" />
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                                <DialogHeader>
-                                  <DialogTitle>Edit Role</DialogTitle>
-                                </DialogHeader>
-                                <div className="space-y-4 py-4">
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                      <Label htmlFor="edit-name">Role Name</Label>
-                                      <Input id="edit-name" name="name" value={formData.name} onChange={handleChange} />
-                                    </div>
-                                    <div className="space-y-2">
-                                      <Label htmlFor="edit-code">Role Code</Label>
-                                      <Input id="edit-code" name="code" value={formData.code} onChange={handleChange} />
-                                    </div>
-                                  </div>
-                                  <div className="space-y-2">
-                                    <Label htmlFor="edit-description">Description</Label>
-                                    <Input id="edit-description" name="description" value={formData.description} onChange={handleChange} />
-                                  </div>
-                                  <Separator />
-                                  <div>
-                                    <h3 className="text-lg font-medium mb-4">Permissions</h3>
-                                    {renderPermissionGroups()}
-                                  </div>
-                                </div>
-                                <DialogFooter>
-                                  <DialogClose asChild>
-                                    <Button variant="outline">Cancel</Button>
-                                  </DialogClose>
-                                  <Button 
-                                    onClick={handleUpdateRole}
-                                    disabled={updateRoleMutation.isPending}
-                                  >
-                                    {updateRoleMutation.isPending ? (
-                                      <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Updating...
-                                      </>
-                                    ) : 'Update Role'}
-                                  </Button>
-                                </DialogFooter>
-                              </DialogContent>
-                            </Dialog>
-                          )}
-                          
-                          {permissions.canDelete && (
-                            <Dialog open={isDeleteDialogOpen && selectedRole?.id === role.id} onOpenChange={(open) => !open && setIsDeleteDialogOpen(false)}>
-                              <DialogTrigger asChild>
-                                <Button variant="ghost" size="icon" onClick={() => openDeleteDialog(role)}>
-                                  <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent>
-                                <DialogHeader>
-                                  <DialogTitle>Confirm Deletion</DialogTitle>
-                                </DialogHeader>
-                                <div className="py-4">
-                                  <p>Are you sure you want to delete role <strong>{selectedRole?.name}</strong>?</p>
-                                  <p className="text-sm text-muted-foreground mt-2">This action cannot be undone.</p>
-                                </div>
-                                <DialogFooter>
-                                  <DialogClose asChild>
-                                    <Button variant="outline">Cancel</Button>
-                                  </DialogClose>
-                                  <Button 
-                                    variant="destructive" 
-                                    onClick={handleDeleteRole}
-                                    disabled={deleteRoleMutation.isPending}
-                                  >
-                                    {deleteRoleMutation.isPending ? (
-                                      <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Deleting...
-                                      </>
-                                    ) : 'Delete Role'}
-                                  </Button>
-                                </DialogFooter>
-                              </DialogContent>
-                            </Dialog>
-                          )}
-                        </TableCell>
-                      )}
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          )}
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </div>
