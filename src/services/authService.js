@@ -162,50 +162,6 @@ export const checkPermission = async (token, permission) => {
  */
 export const getRolesAndPermissions = async (token) => {
   // For development purposes, return mock data
-  // In production, this would be an API call
-  // return [
-  //   {
-  //     "role": "admin",
-  //     "permissions": [
-  //       "export:excel",
-  //       "edit:excel",
-  //       "upload:excel",
-  //       "view:roles",
-  //       "edit:roles",
-  //       "view:users",
-  //       "delete:excel",
-  //       "create:roles",
-  //       "edit:users",
-  //       "create:users",
-  //       "delete:roles",
-  //       "view:dashboard",
-  //       "manage:users",
-  //       "view:reports",
-  //       "view:settings"
-  //     ]
-  //   },
-  //   {
-  //     "role": "viewer",
-  //     "permissions": [
-  //       "view:dashboard",
-  //       "view:reports",
-  //       "export:excel"
-  //     ]
-  //   },
-  //   {
-  //     "role": "user",
-  //     "permissions": [
-  //       "view:dashboard",
-  //       "upload:excel",
-  //       "view:users",
-  //       "edit:excel",
-  //       "export:excel",
-  //       "view:reports"
-  //     ]
-  //   }
-  // ];
-  
-
   try {
     const response = await fetch(`${AUTH_API_URL}/Admin/getSysRolesAndPermissions`, {
       method: "GET",
@@ -227,6 +183,89 @@ export const getRolesAndPermissions = async (token) => {
   }
   
 };
+
+
+
+/**
+ * Get roles and permissions from API
+ * @param {string} token - JWT token
+ * @returns {Promise} - Promise containing roles and permissions data
+ */
+export const getRoles = async (token) => {
+  // For development purposes, return mock data
+  try {
+    const response = await fetch(`${AUTH_API_URL}/Admin/getSysRoles`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch roles with status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching roles and permissions:", error);
+    throw error;
+  }
+  
+};
+
+
+
+
+
+
+export const getSysUser = async (token) => {
+    try {
+    const response = await fetch(`${AUTH_API_URL}/Admin/getSysUser`, {
+      method: "GET",
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch user with status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching roles and permissions:", error);
+    throw error;
+  }
+};
+export const updateSysUser = async (token, userId, data) => {
+  try {
+    const response = await fetch(`${AUTH_API_URL}/admin/updateSysUser/${userId}`, {
+      method: "PUT", // Sử dụng PUT thay vì POST vì đây là cập nhật
+      headers: {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data), // Chuyển data thành JSON và gửi trong body
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to update user with status: ${response.status} - ${errorText}`);
+    }
+
+    const updatedUser = await response.json();
+    return updatedUser;
+  } catch (error) {
+    console.error("Error updating user:", error);
+    throw error;
+  }
+};
+
+
 
 /**
  * For development - Simulated authentication with role

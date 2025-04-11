@@ -2,27 +2,29 @@
 /**
  * Permission and role management utilities
  */
-import { getRolesAndPermissions } from '@/services/authService';
+import { getRolesAndPermissions,getRoles } from '@/services/authService';
 
 // Define application roles
-export const ROLES = {
+export const DEFAULT_ROLES = {
   ADMIN: 'admin',
   USER: 'user',
   VIEWER: 'viewer',
 };
+
+
 
 // Dynamic role permissions that will be populated from API
 let dynamicRolePermissions = null;
 
 // Default role permissions used as fallback if API fails
 const DEFAULT_ROLE_PERMISSIONS = {
-  [ROLES.ADMIN]: [
+  [DEFAULT_ROLES.ADMIN]: [
     'view:dashboard',
   ],
-  [ROLES.USER]: [
+  [DEFAULT_ROLES.USER]: [
     'view:dashboard',
   ],
-  [ROLES.VIEWER]: [
+  [DEFAULT_ROLES.VIEWER]: [
     'view:dashboard',
   ],
 };

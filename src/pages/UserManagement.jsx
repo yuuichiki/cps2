@@ -8,21 +8,42 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAuth } from '@/contexts/AuthContext';
-import { getCrudPermissions, ROLES } from '@/utils/permissions';
+import { getCrudPermissions, DEFAULT_ROLES } from '@/utils/permissions';
 import { toast } from '@/components/ui/use-toast';
 import { PlusCircle, Edit, Trash2, Users } from 'lucide-react';
+import { getSysUser, updateSysUser } from '../services/authService';
 
 const UserManagement = () => {
   const { user } = useAuth();
   const permissions = getCrudPermissions(user, 'users');
   
   // Sample user data (in a real app, this would come from API)
-  const [users, setUsers] = useState([
-    { id: 1, username: 'admin', name: 'Admin User', email: 'admin@example.com', role: 'admin' },
-    { id: 2, username: 'user1', name: 'Regular User', email: 'user@example.com', role: 'user' },
-    { id: 3, username: 'viewer1', name: 'Viewer User', email: 'viewer@example.com', role: 'viewer' },
-  ]);
-  
+
+const [token, setToken] = useState(localStorage.getItem('token'));
+
+console.log("user",user);
+  // State to hold users
+  const [users, setUsers] = useState([]);
+
+  // Fetch and set users from API
+  const fetchUserList = async () => {
+    try {
+      const userList = await getSysUser(token); // Assuming `user.token` contains the auth token
+      setUsers(userList);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to fetch user list.",
+      });
+    }
+  };
+
+  // Fetch users on component mount
+  React.useEffect(() => {
+    fetchUserList();
+  }, []);
+
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -78,9 +99,11 @@ const UserManagement = () => {
   };
 
   // Create a new user
-  const handleCreateUser = () => {
+  const handleCreateUser = () => 
+    {
     // Validation
-    if (!formData.username || !formData.name || !formData.email || !formData.password) {
+    if (!formData.username || !formData.name || !formData.email || !formData.password) 
+      {
       toast({
         variant: "destructive",
         title: "Validation Error",
@@ -88,6 +111,7 @@ const UserManagement = () => {
       });
       return;
     }
+
 
     // In a real app, this would be an API call
     const newUser = {
@@ -109,43 +133,92 @@ const UserManagement = () => {
     });
   };
 
-  // Update an existing user
-  const handleUpdateUser = () => {
-    // Validation
-    if (!formData.username || !formData.name || !formData.email) {
-      toast({
-        variant: "destructive",
-        title: "Validation Error",
-        description: "Please fill out all required fields.",
-      });
-      return;
-    }
+  // // Update an existing user
+  // const handleUpdateUser = () => {
+  //   // Validation
+  //   if (!formData.username || !formData.name || !formData.email) {
+  //     toast({
+  //       variant: "destructive",
+  //       title: "Validation Error",
+  //       description: "Please fill out all required fields.",
+  //     });
+  //     return;
+  //   }
 
-    // In a real app, this would be an API call
-    const updatedUsers = users.map(u => {
-      if (u.id === selectedUser.id) {
-        return {
-          ...u,
+
+
+
+
+
+  //   // In a real app, this would be an API call
+  //   const updatedUsers = users.map(u => {
+  //     if (u.id === selectedUser.id) {
+  //       return {
+  //         ...u,
+  //         username: formData.username,
+  //         name: formData.name,
+  //         email: formData.email,
+  //         role: formData.role,
+  //         // Only update password if provided
+  //         ...(formData.password ? { password: formData.password } : {}),
+  //       };
+  //     }
+  //     return u;
+  //   });
+
+  //   setUsers(updatedUsers);
+  //   resetForm();
+  //   setIsEditDialogOpen(false);
+    
+  //   toast({
+  //     title: "User Updated",
+  //     description: `User ${formData.name} was updated successfully.`,
+  //   });
+  // };
+
+
+      const handleUpdateUser = async () => {
+      if (!formData.username || !formData.name || !formData.email) {
+        toast({
+          variant: "destructive",
+          title: "Validation Error",
+          description: "Please fill out all required fields.",
+        });
+        return;
+      }
+  
+      try {
+        const updatedUserData = {
           username: formData.username,
           name: formData.name,
           email: formData.email,
           role: formData.role,
-          // Only update password if provided
           ...(formData.password ? { password: formData.password } : {}),
         };
-      }
-      return u;
-    });
+  
 
-    setUsers(updatedUsers);
-    resetForm();
-    setIsEditDialogOpen(false);
-    
-    toast({
-      title: "User Updated",
-      description: `User ${formData.name} was updated successfully.`,
-    });
-  };
+        console.log("updatedUserData",updatedUserData);
+        console.log("selectedUser.id",selectedUser);
+        const updatedUser = await updateSysUser(token, selectedUser.id, updatedUserData);
+        setUsers(users.map(u => (u.id === selectedUser.id ? updatedUser : u)));
+        resetForm();
+        setIsEditDialogOpen(false);
+  
+        toast({
+          title: "User Updated",
+          description: `User ${formData.name} was updated successfully.`,
+        });
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.response?.data?.message || "Failed to update user.",
+        });
+      }
+    };
+  
+  
+
 
   // Delete a user
   const handleDeleteUser = () => {
@@ -189,15 +262,15 @@ const UserManagement = () => {
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
                     <Label htmlFor="username">Username</Label>
-                    <Input id="username" name="username" value={formData.username} onChange={handleChange} />
+                    <Input id="username" name="username"  value={formData.username} onChange={handleChange}/>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="name">Full Name</Label>
-                    <Input id="name" name="name" value={formData.name} onChange={handleChange} />
+                    <Input id="name" name="name"   value={formData.name} onChange={handleChange}  />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} />
+                    <Input id="email" name="email" type="email"  value={formData.email} onChange={handleChange}  />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="password">Password</Label>
@@ -210,9 +283,9 @@ const UserManagement = () => {
                         <SelectValue placeholder="Select a role" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value={ROLES.ADMIN}>Admin</SelectItem>
-                        <SelectItem value={ROLES.USER}>User</SelectItem>
-                        <SelectItem value={ROLES.VIEWER}>Viewer</SelectItem>
+                        <SelectItem value={DEFAULT_ROLES.ADMIN}>Admin</SelectItem>
+                        <SelectItem value={DEFAULT_ROLES.USER}>User</SelectItem>
+                        <SelectItem value={DEFAULT_ROLES.VIEWER}>Viewer</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -267,15 +340,15 @@ const UserManagement = () => {
                             <div className="space-y-4 py-4">
                               <div className="space-y-2">
                                 <Label htmlFor="edit-username">Username</Label>
-                                <Input id="edit-username" name="username" value={formData.username} onChange={handleChange} />
+                                <Input id="edit-username" name="username" value={formData.username}  onChange={handleChange} readOnly/>
                               </div>
                               <div className="space-y-2">
                                 <Label htmlFor="edit-name">Full Name</Label>
-                                <Input id="edit-name" name="name" value={formData.name} onChange={handleChange} />
+                                <Input id="edit-name" name="name" value={formData.name} readOnly ={true} onChange={handleChange} />
                               </div>
                               <div className="space-y-2">
                                 <Label htmlFor="edit-email">Email</Label>
-                                <Input id="edit-email" name="email" type="email" value={formData.email} onChange={handleChange} />
+                                <Input id="edit-email" name="email" type="email" readOnly ={true} value={formData.email} onChange={handleChange} />
                               </div>
                               <div className="space-y-2">
                                 <Label htmlFor="edit-password">Password (leave blank to keep unchanged)</Label>
@@ -288,9 +361,9 @@ const UserManagement = () => {
                                     <SelectValue placeholder="Select a role" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value={ROLES.ADMIN}>Admin</SelectItem>
-                                    <SelectItem value={ROLES.USER}>User</SelectItem>
-                                    <SelectItem value={ROLES.VIEWER}>Viewer</SelectItem>
+                                    <SelectItem value={DEFAULT_ROLES.ADMIN}>Admin</SelectItem>
+                                    <SelectItem value={DEFAULT_ROLES.USER}>User</SelectItem>
+                                    <SelectItem value={DEFAULT_ROLES.VIEWER}>Viewer</SelectItem>
                                   </SelectContent>
                                 </Select>
                               </div>
