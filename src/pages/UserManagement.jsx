@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,41 +8,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAuth } from '@/contexts/AuthContext';
-import { getCrudPermissions, DEFAULT_ROLES } from '@/utils/permissions';
+import { getCrudPermissions } from '@/utils/permissions';
 import { toast } from '@/components/ui/use-toast';
-import { PlusCircle, Edit, Trash2, Users } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, Users, Loader2 } from 'lucide-react';
 import { getSysUser, updateSysUser } from '../services/authService';
+import { getAllRoles } from '../services/roleService';
 
 const UserManagement = () => {
   const { user } = useAuth();
   const permissions = getCrudPermissions(user, 'users');
   
-  // Sample user data (in a real app, this would come from API)
-
-const [token, setToken] = useState(localStorage.getItem('token'));
-
-console.log("user",user);
-  // State to hold users
+  const [token, setToken] = useState(localStorage.getItem('token'));
   const [users, setUsers] = useState([]);
-
-  // Fetch and set users from API
-  const fetchUserList = async () => {
-    try {
-      const userList = await getSysUser(token); // Assuming `user.token` contains the auth token
-      setUsers(userList);
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to fetch user list.",
-      });
-    }
-  };
-
-  // Fetch users on component mount
-  React.useEffect(() => {
-    fetchUserList();
-  }, []);
+  const [roles, setRoles] = useState([]);
+  const [isLoadingRoles, setIsLoadingRoles] = useState(false);
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -55,6 +34,43 @@ console.log("user",user);
     role: 'user',
     password: '',
   });
+
+  // Fetch and set users from API
+  const fetchUserList = async () => {
+    try {
+      const userList = await getSysUser(token);
+      setUsers(userList);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to fetch user list.",
+      });
+    }
+  };
+
+  // Fetch roles from API
+  const fetchRoles = async () => {
+    setIsLoadingRoles(true);
+    try {
+      const roleList = await getAllRoles(token);
+      setRoles(roleList);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to fetch role list.",
+      });
+    } finally {
+      setIsLoadingRoles(false);
+    }
+  };
+
+  // Fetch users and roles on component mount
+  useEffect(() => {
+    fetchUserList();
+    fetchRoles();
+  }, []);
 
   // Handle form input changes
   const handleChange = (e) => {
@@ -99,11 +115,9 @@ console.log("user",user);
   };
 
   // Create a new user
-  const handleCreateUser = () => 
-    {
+  const handleCreateUser = () => {
     // Validation
-    if (!formData.username || !formData.name || !formData.email || !formData.password) 
-      {
+    if (!formData.username || !formData.name || !formData.email || !formData.password) {
       toast({
         variant: "destructive",
         title: "Validation Error",
@@ -111,7 +125,6 @@ console.log("user",user);
       });
       return;
     }
-
 
     // In a real app, this would be an API call
     const newUser = {
@@ -133,92 +146,42 @@ console.log("user",user);
     });
   };
 
-  // // Update an existing user
-  // const handleUpdateUser = () => {
-  //   // Validation
-  //   if (!formData.username || !formData.name || !formData.email) {
-  //     toast({
-  //       variant: "destructive",
-  //       title: "Validation Error",
-  //       description: "Please fill out all required fields.",
-  //     });
-  //     return;
-  //   }
+  const handleUpdateUser = async () => {
+    if (!formData.username || !formData.name || !formData.email) {
+      toast({
+        variant: "destructive",
+        title: "Validation Error",
+        description: "Please fill out all required fields.",
+      });
+      return;
+    }
 
+    try {
+      const updatedUserData = {
+        username: formData.username,
+        name: formData.name,
+        email: formData.email,
+        role: formData.role,
+        ...(formData.password ? { password: formData.password } : {}),
+      };
 
+      const updatedUser = await updateSysUser(token, selectedUser.id, updatedUserData);
+      setUsers(users.map(u => (u.id === selectedUser.id ? updatedUser : u)));
+      resetForm();
+      setIsEditDialogOpen(false);
 
-
-
-
-  //   // In a real app, this would be an API call
-  //   const updatedUsers = users.map(u => {
-  //     if (u.id === selectedUser.id) {
-  //       return {
-  //         ...u,
-  //         username: formData.username,
-  //         name: formData.name,
-  //         email: formData.email,
-  //         role: formData.role,
-  //         // Only update password if provided
-  //         ...(formData.password ? { password: formData.password } : {}),
-  //       };
-  //     }
-  //     return u;
-  //   });
-
-  //   setUsers(updatedUsers);
-  //   resetForm();
-  //   setIsEditDialogOpen(false);
-    
-  //   toast({
-  //     title: "User Updated",
-  //     description: `User ${formData.name} was updated successfully.`,
-  //   });
-  // };
-
-
-      const handleUpdateUser = async () => {
-      if (!formData.username || !formData.name || !formData.email) {
-        toast({
-          variant: "destructive",
-          title: "Validation Error",
-          description: "Please fill out all required fields.",
-        });
-        return;
-      }
-  
-      try {
-        const updatedUserData = {
-          username: formData.username,
-          name: formData.name,
-          email: formData.email,
-          role: formData.role,
-          ...(formData.password ? { password: formData.password } : {}),
-        };
-  
-
-        console.log("updatedUserData",updatedUserData);
-        console.log("selectedUser.id",selectedUser);
-        const updatedUser = await updateSysUser(token, selectedUser.id, updatedUserData);
-        setUsers(users.map(u => (u.id === selectedUser.id ? updatedUser : u)));
-        resetForm();
-        setIsEditDialogOpen(false);
-  
-        toast({
-          title: "User Updated",
-          description: `User ${formData.name} was updated successfully.`,
-        });
-      } catch (error) {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: error.response?.data?.message || "Failed to update user.",
-        });
-      }
-    };
-  
-  
-
+      toast({
+        title: "User Updated",
+        description: `User ${formData.name} was updated successfully.`,
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.response?.data?.message || "Failed to update user.",
+      });
+    }
+  };
 
   // Delete a user
   const handleDeleteUser = () => {
@@ -231,6 +194,24 @@ console.log("user",user);
       title: "User Deleted",
       description: `User ${selectedUser.name} was deleted successfully.`,
     });
+  };
+
+  // Render the role options based on API data
+  const renderRoleOptions = () => {
+    if (isLoadingRoles) {
+      return (
+        <div className="flex items-center justify-center p-2">
+          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+          <span>Loading roles...</span>
+        </div>
+      );
+    }
+
+    return roles.map(role => (
+      <SelectItem key={role.id} value={role.code}>
+        {role.name}
+      </SelectItem>
+    ));
   };
 
   return (
@@ -262,15 +243,15 @@ console.log("user",user);
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
                     <Label htmlFor="username">Username</Label>
-                    <Input id="username" name="username"  value={formData.username} onChange={handleChange}/>
+                    <Input id="username" name="username" value={formData.username} onChange={handleChange}/>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="name">Full Name</Label>
-                    <Input id="name" name="name"   value={formData.name} onChange={handleChange}  />
+                    <Input id="name" name="name" value={formData.name} onChange={handleChange} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" name="email" type="email"  value={formData.email} onChange={handleChange}  />
+                    <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="password">Password</Label>
@@ -283,9 +264,7 @@ console.log("user",user);
                         <SelectValue placeholder="Select a role" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value={DEFAULT_ROLES.ADMIN}>Admin</SelectItem>
-                        <SelectItem value={DEFAULT_ROLES.USER}>User</SelectItem>
-                        <SelectItem value={DEFAULT_ROLES.VIEWER}>Viewer</SelectItem>
+                        {renderRoleOptions()}
                       </SelectContent>
                     </Select>
                   </div>
@@ -340,15 +319,15 @@ console.log("user",user);
                             <div className="space-y-4 py-4">
                               <div className="space-y-2">
                                 <Label htmlFor="edit-username">Username</Label>
-                                <Input id="edit-username" name="username" value={formData.username}  onChange={handleChange} readOnly/>
+                                <Input id="edit-username" name="username" value={formData.username} onChange={handleChange} readOnly/>
                               </div>
                               <div className="space-y-2">
                                 <Label htmlFor="edit-name">Full Name</Label>
-                                <Input id="edit-name" name="name" value={formData.name} readOnly ={true} onChange={handleChange} />
+                                <Input id="edit-name" name="name" value={formData.name} readOnly={true} onChange={handleChange} />
                               </div>
                               <div className="space-y-2">
                                 <Label htmlFor="edit-email">Email</Label>
-                                <Input id="edit-email" name="email" type="email" readOnly ={true} value={formData.email} onChange={handleChange} />
+                                <Input id="edit-email" name="email" type="email" readOnly={true} value={formData.email} onChange={handleChange} />
                               </div>
                               <div className="space-y-2">
                                 <Label htmlFor="edit-password">Password (leave blank to keep unchanged)</Label>
@@ -361,9 +340,7 @@ console.log("user",user);
                                     <SelectValue placeholder="Select a role" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value={DEFAULT_ROLES.ADMIN}>Admin</SelectItem>
-                                    <SelectItem value={DEFAULT_ROLES.USER}>User</SelectItem>
-                                    <SelectItem value={DEFAULT_ROLES.VIEWER}>Viewer</SelectItem>
+                                    {renderRoleOptions()}
                                   </SelectContent>
                                 </Select>
                               </div>
