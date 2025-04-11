@@ -2,7 +2,7 @@
 /**
  * Permission and role management utilities
  */
-import { getRolesAndPermissions,getRoles } from '@/services/authService';
+import { getRolesAndPermissions, getRoles } from '@/services/authService';
 
 // Define application roles
 export const DEFAULT_ROLES = {
@@ -10,8 +10,6 @@ export const DEFAULT_ROLES = {
   USER: 'user',
   VIEWER: 'viewer',
 };
-
-
 
 // Dynamic role permissions that will be populated from API
 let dynamicRolePermissions = null;
@@ -79,36 +77,36 @@ export const STATIC_MENU_ITEMS = [
     icon: 'LayoutDashboard',
     permission: 'view:dashboard',
   },
-  // {
-  //   title: 'Excel Viewer',
-  //   path: '/excel-viewer',
-  //   icon: 'FileSpreadsheet',
-  //   permission: 'view:reports',
-  // },
-  // {
-  //   title: 'Reports',
-  //   path: '/reports',
-  //   icon: 'BarChart',
-  //   permission: 'view:reports',
-  // },
-  // {
-  //   title: 'User Management',
-  //   path: '/users',
-  //   icon: 'Users',
-  //   permission: 'view:users',
-  // },
-  // {
-  //   title: 'Role Management',
-  //   path: '/roles',
-  //   icon: 'Shield',
-  //   permission: 'view:roles',
-  // },
-  // {
-  //   title: 'Settings',
-  //   path: '/settings',
-  //   icon: 'Settings',
-  //   permission: 'view:settings',
-  // },
+  {
+    title: 'Excel Viewer',
+    path: '/excel-viewer',
+    icon: 'FileSpreadsheet',
+    permission: 'view:reports',
+  },
+  {
+    title: 'Reports',
+    path: '/reports',
+    icon: 'BarChart',
+    permission: 'view:reports',
+  },
+  {
+    title: 'User Management',
+    path: '/users',
+    icon: 'Users',
+    permission: 'view:users',
+  },
+  {
+    title: 'Role Management',
+    path: '/roles',
+    icon: 'Shield',
+    permission: 'view:roles',
+  },
+  {
+    title: 'Settings',
+    path: '/settings',
+    icon: 'Settings',
+    permission: 'view:settings',
+  },
 ];
 
 /**
