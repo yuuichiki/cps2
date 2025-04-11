@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,10 +7,10 @@ import {
   createRole, 
   updateRole, 
   deleteRole, 
-  updateRolePermissions 
+  updateRolePermissions,
+  getRolePermissions
 } from '@/services/roleService';
 
-// Group permissions by category for easier management
 export const PERMISSION_GROUPS = [
   {
     name: 'Dashboard',
@@ -55,7 +54,6 @@ export const PERMISSION_GROUPS = [
   },
 ];
 
-// Get a flat list of all permissions
 export const ALL_PERMISSIONS = PERMISSION_GROUPS.flatMap(group => group.permissions);
 
 export const useRoleManagement = () => {
@@ -72,8 +70,8 @@ export const useRoleManagement = () => {
     description: '',
     permissions: [],
   });
+  const [isLoadingPermissions, setIsLoadingPermissions] = useState(false);
 
-  // Fetch all roles
   const { 
     data: roles = [],
     isLoading: isLoadingRoles,
@@ -84,7 +82,6 @@ export const useRoleManagement = () => {
     queryFn: () => getAllRoles(token),
   });
 
-  // Create role mutation
   const { mutate: createRoleMutation, isPending: isCreating } = useMutation({
     mutationFn: (data) => createRole(token, data),
     onSuccess: () => {
@@ -105,7 +102,6 @@ export const useRoleManagement = () => {
     }
   });
 
-  // Update role mutation
   const { mutate: updateRoleMutation, isPending: isUpdating } = useMutation({
     mutationFn: ({ roleId, data }) => updateRole(token, roleId, data),
     onSuccess: () => {
@@ -126,7 +122,6 @@ export const useRoleManagement = () => {
     }
   });
 
-  // Delete role mutation
   const { mutate: deleteRoleMutation, isPending: isDeleting } = useMutation({
     mutationFn: (roleId) => deleteRole(token, roleId),
     onSuccess: () => {
@@ -146,7 +141,6 @@ export const useRoleManagement = () => {
     }
   });
 
-  // Update role permissions mutation
   const { mutate: updateRolePermissionsMutation, isPending: isUpdatingPermissions } = useMutation({
     mutationFn: ({ roleId, permissions }) => updateRolePermissions(token, roleId, permissions),
     onSuccess: () => {
@@ -165,13 +159,11 @@ export const useRoleManagement = () => {
     }
   });
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Toggle permission selection
   const togglePermission = (permissionId) => {
     setFormData(prev => {
       const updatedPermissions = prev.permissions.includes(permissionId)
@@ -182,7 +174,6 @@ export const useRoleManagement = () => {
     });
   };
 
-  // Toggle all permissions in a group
   const togglePermissionGroup = (groupPermissions) => {
     const permissionIds = groupPermissions.map(p => p.id);
     const allChecked = permissionIds.every(id => formData.permissions.includes(id));
@@ -191,10 +182,8 @@ export const useRoleManagement = () => {
       let updatedPermissions;
       
       if (allChecked) {
-        // Remove all permissions in this group
         updatedPermissions = prev.permissions.filter(id => !permissionIds.includes(id));
       } else {
-        // Add all permissions in this group
         const permissionsToAdd = permissionIds.filter(id => !prev.permissions.includes(id));
         updatedPermissions = [...prev.permissions, ...permissionsToAdd];
       }
@@ -203,7 +192,6 @@ export const useRoleManagement = () => {
     });
   };
 
-  // Reset form data
   const resetForm = () => {
     setFormData({
       name: '',
@@ -214,27 +202,38 @@ export const useRoleManagement = () => {
     setSelectedRole(null);
   };
 
-  // Open edit dialog with role data
-  const openEditDialog = (role) => {
+  const openEditDialog = async (role) => {
     setSelectedRole(role);
+    
     setFormData({
       name: role.name,
       code: role.code,
       description: role.description || '',
-      permissions: role.permissions || [],
+      permissions: [],
     });
+    
+    setIsLoadingPermissions(true);
+    try {
+      const permissions = await getRolePermissions(token, role.id);
+      setFormData(prev => ({
+        ...prev,
+        permissions: permissions || []
+      }));
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error Loading Permissions",
+        description: "Failed to load role permissions. Please try again.",
+      });
+      console.error("Error fetching role permissions:", error);
+    } finally {
+      setIsLoadingPermissions(false);
+    }
+    
     setIsEditDialogOpen(true);
   };
 
-  // Open delete confirmation dialog
-  const openDeleteDialog = (role) => {
-    setSelectedRole(role);
-    setIsDeleteDialogOpen(true);
-  };
-
-  // Create a new role
   const handleCreateRole = () => {
-    // Validation
     if (!formData.name || !formData.code) {
       toast({
         variant: "destructive",
@@ -253,9 +252,7 @@ export const useRoleManagement = () => {
     createRoleMutation(roleData);
   };
 
-  // Update an existing role
   const handleUpdateRole = () => {
-    // Validation
     if (!formData.name || !formData.code) {
       toast({
         variant: "destructive",
@@ -273,13 +270,11 @@ export const useRoleManagement = () => {
 
     updateRoleMutation({ roleId: selectedRole.id, data: roleData });
     
-    // Update permissions separately
     if (selectedRole && selectedRole.permissions !== formData.permissions) {
       updateRolePermissionsMutation({ roleId: selectedRole.id, permissions: formData.permissions });
     }
   };
 
-  // Delete a role
   const handleDeleteRole = () => {
     if (!selectedRole || !selectedRole.id) {
       toast({
@@ -319,5 +314,6 @@ export const useRoleManagement = () => {
     isUpdating,
     isDeleting,
     isUpdatingPermissions,
+    isLoadingPermissions,
   };
 };

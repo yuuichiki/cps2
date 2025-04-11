@@ -40,6 +40,7 @@ const RoleManagement = () => {
     isCreating,
     isUpdating,
     isDeleting,
+    isLoadingPermissions,
   } = useRoleManagement();
 
   // Handle API error
@@ -113,6 +114,7 @@ const RoleManagement = () => {
             togglePermissionGroup={togglePermissionGroup}
             onUpdateRole={handleUpdateRole}
             isUpdating={isUpdating}
+            isLoadingPermissions={isLoadingPermissions}
           />
 
           <DeleteRoleDialog
